@@ -1,3 +1,18 @@
+import flatpickr from "flatpickr";
+
+document.addEventListener(`DOMContentLoaded`, () => {
+  const startDate = document.querySelector(`#event-start-time-1`);
+  flatpickr(startDate, {
+    enableTime: true,
+    dateFormat: `d/m/y H:i`,
+    minDate: `today`
+  });
+  flatpickr(`#event-end-time-1`, {
+    enableTime: true,
+    dateFormat: `d/m/y H:i`,
+  });
+});
+
 export const createNewPointTemplate = () => {
   return `<li class="trip-events__item">
   <form class="event event--edit" action="#" method="post">
@@ -80,10 +95,10 @@ export const createNewPointTemplate = () => {
 
       <div class="event__field-group  event__field-group--time">
         <label class="visually-hidden" for="event-start-time-1">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="19/03/19 00:00">
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="">
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="19/03/19 00:00">
+        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="">
       </div>
 
       <div class="event__field-group  event__field-group--price">
