@@ -16,6 +16,10 @@
     "webpack-cli": "3.3.12",
     "webpack-dev-server": "3.11.0"
   },
+  "dependencies": {
+    "flatpickr": "4.6.6",
+    "dayjs": "1.9.5"
+  },
   "engines": {
     "node": "10"
   }
