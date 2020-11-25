@@ -9,28 +9,13 @@ import {createEditPointTemplate} from "./view/edit-point.js";
 import {createNewPointTemplate} from "./view/new-point.js";
 import {createPointTemplate} from "./view/point.js";
 import {generatePoint} from "./mock/point.js";
-import {generateTripInfoMain} from "./mock/trip-info.js";
+import {generateTripInfoMain} from "./mock/trip-info-main.js";
 
 const POINTS_COUNT = 20;
 
 const routePoints = new Array(POINTS_COUNT).fill().map(generatePoint);
 
-const sortPointsByStartDate = (pointsArr) => {
-
-  pointsArr.sort(function (a, b) {
-    if (a.startDate > b.startDate) {
-      return 1;
-    }
-    if (a.startDate === b.startDate) {
-      return 0;
-    }
-    if (a.startDate < b.startDate) {
-      return -1;
-    }
-    return pointsArr;
-  });
-  return pointsArr;
-};
+const sortPointsByStartDate = (pointsArr) => pointsArr.sort((a, b) => a.startDate - b.startDate);
 
 const sortedRoutePoints = sortPointsByStartDate(routePoints);
 

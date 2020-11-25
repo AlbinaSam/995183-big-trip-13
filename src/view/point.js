@@ -22,46 +22,27 @@ const getDuration = (startDate, endDate) => {
   const minutes = datesDiff.minutes();
   let pointDuration = ``;
 
+  const formatDigits = (unit, short) => {
+    if (unit.toString().length === 1) {
+      return `0${unit}${short} `;
+    } else {
+      return `${unit}${short} `;
+    }
+  };
+
   if (days !== 0) {
-    if (days.toString().length === 1) {
-      pointDuration = `0` + days + `D `;
-    } else {
-      pointDuration = days + `D `;
-    }
-    if (hours.toString().length === 1) {
-      pointDuration = pointDuration + `0` + hours + `H `;
-    } else {
-      pointDuration = pointDuration + hours + `H `;
-    }
-    if (minutes.toString().length === 1) {
-      pointDuration = pointDuration + `0` + minutes + `M`;
-    } else {
-      pointDuration = pointDuration + minutes + `M`;
-    }
+    pointDuration = formatDigits(days, `D`) + formatDigits(hours, `H`) + formatDigits(minutes, `M`);
     return pointDuration;
   }
 
   if (hours !== 0) {
-    if (hours.toString().length === 1) {
-      pointDuration = pointDuration + `0` + hours + `H `;
-    } else {
-      pointDuration = pointDuration + hours + `H `;
-    }
-    if (minutes.toString().length === 1) {
-      pointDuration = pointDuration + `0` + minutes + `M`;
-    } else {
-      pointDuration = pointDuration + minutes + `M`;
-    }
-  } else {
-    if (minutes.toString().length === 1) {
-      pointDuration = pointDuration + `0` + minutes + `M`;
-    } else {
-      pointDuration = pointDuration + minutes + `M`;
-    }
+    pointDuration = formatDigits(hours, `H`) + formatDigits(minutes, `M`);
+    return pointDuration;
   }
+
+  pointDuration = formatDigits(minutes, `M`);
   return pointDuration;
 };
-
 
 export const createPointTemplate = (eventItem) => {
   const {type, destination, offers, price, isFavorite, startDate, endDate} = eventItem;

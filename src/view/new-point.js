@@ -2,14 +2,16 @@ import flatpickr from "flatpickr";
 
 document.addEventListener(`DOMContentLoaded`, () => {
   const startDate = document.querySelector(`#event-start-time-1`);
+  const endDate = document.querySelector(`#event-end-time-1`);
   flatpickr(startDate, {
     enableTime: true,
     dateFormat: `d/m/y H:i`,
     minDate: `today`
   });
-  flatpickr(`#event-end-time-1`, {
+  flatpickr(endDate, {
     enableTime: true,
     dateFormat: `d/m/y H:i`,
+    minDate: `today`
   });
 });
 

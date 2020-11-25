@@ -1,10 +1,37 @@
 import dayjs from "dayjs";
 import {getRandomInteger} from "../util.js";
 
+const Types = {
+  TAXI: `Taxi`,
+  BUS: `Bus`,
+  TRAIN: `Train`,
+  SHIP: `Ship`,
+  TRANSPORT: `Transport`,
+  DRIVE: `Drive`,
+  FLIGHT: `Flight`,
+  CHECK_IN: `Check-in`,
+  SIGHTSEENG: `Sightseeing`,
+  RESTAURANT: `Restaurant`
+};
+
+const Offers = {
+  ADD_LUGGAGE: `Add luggage`,
+  SWITCH_TO_COMFORT_CLASS: `Switch to comfort class`,
+  ADD_MEAL: `Add meal`,
+  CHOOSE_SEATS: `Choose seats`,
+  TRAVEL_BY_TRAIN: `Travel by train`
+};
+
+const DAYS_GAP = 90;
+const HOURS_GAP = 24;
+const MINUTES_GAP = 60;
+const MAX_POINT_DURATION = 10;
+
+const pointTypes = Object.values(Types);
+
 const generateType = () => {
-  const types = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`, `Check-in`, `Sightseeing`, `Restaurant`];
-  const randomIndex = getRandomInteger(0, types.length - 1);
-  return types[randomIndex];
+  const randomIndex = getRandomInteger(0, pointTypes.length - 1);
+  return pointTypes[randomIndex];
 };
 
 const generateDestination = () => {
@@ -15,28 +42,28 @@ const generateDestination = () => {
 
 const generateOffer = () => {
 
-  const offers = [`Add luggage`, `Switch to comfort class`, `Add meal`, `Choose seats`, `Travel by train`];
+  const offers = Object.values(Offers);
 
   const offersDetails = {
     'Add luggage': {
       price: 30,
-      inputName: `event-offer-luggage`
+      name: `luggage`
     },
     'Switch to comfort class': {
       price: 100,
-      inputName: `event-offer-comfort`
+      name: `comfort`
     },
     'Add meal': {
       price: 15,
-      inputName: `event-offer-meal`
+      name: `meal`
     },
     'Choose seats': {
       price: 5,
-      inputName: `event-offer-seats`
+      name: `seats`
     },
     'Travel by train': {
       price: 40,
-      inputName: `event-offer-train`
+      name: `train`
     }
   };
 
@@ -46,11 +73,10 @@ const generateOffer = () => {
   return {
     title: randomOffer,
     price: offersDetails[randomOffer].price,
-    inputName: offersDetails[randomOffer].inputName,
+    name: offersDetails[randomOffer].name,
     isChecked: Boolean(getRandomInteger(0, 1))
   };
 };
-
 
 const generateOffersList = () => {
   const randomLength = getRandomInteger(1, 5);
@@ -63,19 +89,17 @@ const generateOffersList = () => {
   return offers;
 };
 
+const genereateOffersForPointType = () => {
+  const pointTypeOffers = {};
 
-const pointTypeOffers = {
-  'Bus': generateOffersList(),
-  'Taxi': generateOffersList(),
-  'Flight': generateOffersList(),
-  'Ship': generateOffersList(),
-  'Check-in': generateOffersList(),
-  'Transport': generateOffersList(),
-  'Drive': generateOffersList(),
-  'Sightseeng': generateOffersList(),
-  'Restaurant': generateOffersList(),
-  'Train': generateOffersList()
+  pointTypes.forEach((type) => {
+    pointTypeOffers[type] = generateOffersList();
+  });
+
+  return pointTypeOffers;
 };
+
+const pointTypeOffers = genereateOffersForPointType();
 
 const generateDescription = () => {
   let text = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
@@ -98,11 +122,6 @@ const geneatePhotosList = () => {
   }
   return photos;
 };
-
-const DAYS_GAP = 90;
-const HOURS_GAP = 24;
-const MINUTES_GAP = 60;
-const MAX_POINT_DURATION = 30;
 
 const generateStartDate = () => {
   const randomDaysCount = getRandomInteger(-DAYS_GAP, DAYS_GAP);
