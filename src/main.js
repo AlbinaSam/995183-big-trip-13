@@ -1,15 +1,16 @@
-import {createTripInfoTemplate} from "./view/trip-info";
-import {createTripInfoMainTemplate} from "./view/trip-info-main";
-import {createTripInfoCostTemplate} from "./view/trip-info-cost";
-import {createMenuTabsTemplate} from "./view/menu-tabs.js";
-import {createFilterTemplate} from "./view/filter.js";
-import {createSortingTemplate} from "./view/sorting.js";
-import {createEventListTemplate} from "./view/event-list.js";
-import {createEditPointTemplate} from "./view/edit-point.js";
-import {createNewPointTemplate} from "./view/new-point.js";
-import {createPointTemplate} from "./view/point.js";
+import TripInfoView from "./view/trip-info.js";
+import TripInfoMainView from "./view/trip-info-main.js";
+import TripInfoCostView from "./view/trip-info-cost.js";
+import MenuTabsView from "./view/menu-tabs.js";
+import FilterView from "./view/filter.js";
+import SortingView from "./view/sorting.js";
+import EventListView from "./view/event-list.js";
+import EditPointView from "./view/edit-point.js";
+import NewPointView from "./view/new-point.js";
+import PointView from "./view/point.js";
 import {generatePoint} from "./mock/point.js";
 import {generateTripInfoMain} from "./mock/trip-info-main.js";
+import {renderElement, RenderPosition} from "./util.js";
 
 const POINTS_COUNT = 20;
 
@@ -21,31 +22,54 @@ const sortedRoutePoints = sortPointsByStartDate(routePoints);
 
 const tripInfoMain = generateTripInfoMain(sortedRoutePoints);
 
-const render = (container, template, place) => {
-  container.insertAdjacentHTML(place, template);
-};
-
+const tripInfoComponent = new TripInfoView();
 const tripInfoContainer = document.querySelector(`.trip-main`);
-render(tripInfoContainer, createTripInfoTemplate(), `afterbegin`);
-const tripInfo = document.querySelector(`.trip-info`);
-render(tripInfo, createTripInfoMainTemplate(tripInfoMain), `afterbegin`);
-render(tripInfo, createTripInfoCostTemplate(), `beforeEnd`);
+renderElement(tripInfoContainer, tripInfoComponent.getElement(), RenderPosition.ARTERBEGIN);
+
+renderElement(tripInfoComponent.getElement(), new TripInfoMainView(tripInfoMain).getElement(), RenderPosition.ARTERBEGIN);
+renderElement(tripInfoComponent.getElement(), new TripInfoCostView().getElement(), RenderPosition.BEFOREEND);
 
 const tripControls = document.querySelector(`.trip-controls`);
 const tripControlsHeaders = tripControls.querySelectorAll(`h2`);
-render(tripControlsHeaders[0], createMenuTabsTemplate(), `afterend`);
-render(tripControlsHeaders[1], createFilterTemplate(), `afterend`);
+renderElement(tripControlsHeaders[0], new MenuTabsView().getElement(), RenderPosition.AFTEREND);
+renderElement(tripControlsHeaders[1], new FilterView().getElement(), RenderPosition.AFTEREND);
 
 const tripEvents = document.querySelector(`.trip-events`);
 const tripEventsHeader = tripEvents.querySelector(`h2`);
-render(tripEventsHeader, createSortingTemplate(), `afterend`);
+renderElement(tripEventsHeader, new SortingView().getElement(), RenderPosition.AFTEREND);
 
-render(tripEvents, createEventListTemplate(), `beforeEnd`);
-const pointsList = document.querySelector(`.trip-events__list`);
+const eventListComponent = new EventListView();
+renderElement(tripEvents, eventListComponent.getElement(), RenderPosition.BEFOREEND);
+const pointsList = eventListComponent.getElement();
 
-// render(pointsList, createNewPointTemplate(), `afterbegin`);
-render(pointsList, createEditPointTemplate(sortedRoutePoints[0]), `afterbegin`);
 
-for (let i = 1; i < POINTS_COUNT; i++) {
-  render(pointsList, createPointTemplate(sortedRoutePoints[i]), `beforeend`);
+const renderTask = (pointsListElement, point) => {
+  const pointComponent = new PointView(point);
+  const editPointComponent = new EditPointView(point);
+
+  const replacePointToForm = () => {
+    pointsListElement.replaceChild(editPointComponent.getElement(), pointComponent.getElement());
+  };
+
+  const replaceFormToPoint = () => {
+    pointsListElement.replaceChild(pointComponent.getElement(), editPointComponent.getElement());
+  };
+
+  pointComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+    replacePointToForm();
+  });
+
+  editPointComponent.getElement().querySelector(`form`).addEventListener(`submit`, () => {
+    replaceFormToPoint();
+  });
+
+  editPointComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+    replaceFormToPoint();
+  });
+
+  renderElement(pointsListElement, pointComponent.getElement(), RenderPosition.BEFOREEND);
+};
+
+for (let i = 0; i < POINTS_COUNT; i++) {
+  renderTask(pointsList, sortedRoutePoints[i]);
 }

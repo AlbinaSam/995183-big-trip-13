@@ -1,3 +1,4 @@
+import {createElement} from "../util.js";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
@@ -44,7 +45,7 @@ const getDuration = (startDate, endDate) => {
   return pointDuration;
 };
 
-export const createPointTemplate = (eventItem) => {
+const createPointTemplate = (eventItem) => {
   const {type, destination, offers, price, isFavorite, startDate, endDate} = eventItem;
 
   const formattedStartDate = dayjs(startDate).format(`DD/MM/YY HH:mm`);
@@ -94,3 +95,25 @@ export const createPointTemplate = (eventItem) => {
   </div>
 </li>`;
 };
+
+export default class Point {
+  constructor(sortedRoutePoint) {
+    this._element = null;
+    this._point = sortedRoutePoint;
+  }
+
+  getTemplate() {
+    return createPointTemplate(this._point);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

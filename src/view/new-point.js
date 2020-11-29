@@ -1,21 +1,24 @@
 import flatpickr from "flatpickr";
+import createElement from "../util.js";
 
 document.addEventListener(`DOMContentLoaded`, () => {
   const startDate = document.querySelector(`#event-start-time-1`);
   const endDate = document.querySelector(`#event-end-time-1`);
-  flatpickr(startDate, {
-    enableTime: true,
-    dateFormat: `d/m/y H:i`,
-    minDate: `today`
-  });
-  flatpickr(endDate, {
-    enableTime: true,
-    dateFormat: `d/m/y H:i`,
-    minDate: `today`
-  });
+  if (startDate && endDate) {
+    flatpickr(startDate, {
+      enableTime: true,
+      dateFormat: `d/m/y H:i`,
+      minDate: `today`
+    });
+    flatpickr(endDate, {
+      enableTime: true,
+      dateFormat: `d/m/y H:i`,
+      minDate: `today`
+    });
+  }
 });
 
-export const createNewPointTemplate = () => {
+const createNewPointTemplate = () => {
   return `<li class="trip-events__item">
   <form class="event event--edit" action="#" method="post">
     <header class="event__header">
@@ -184,3 +187,24 @@ export const createNewPointTemplate = () => {
   </form>
 </li>`;
 };
+
+export default class NewPoint {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createNewPointTemplate();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
