@@ -4,10 +4,11 @@ import TripInfoCostView from "./view/trip-info-cost.js";
 import MenuTabsView from "./view/menu-tabs.js";
 import FilterView from "./view/filter.js";
 import SortingView from "./view/sorting.js";
-import EventListView from "./view/event-list.js";
+import PointListView from "./view/point-list.js";
 import EditPointView from "./view/edit-point.js";
 import NewPointView from "./view/new-point.js";
 import PointView from "./view/point.js";
+import NoPointView from "./view/no-point.js";
 import {generatePoint} from "./mock/point.js";
 import {generateTripInfoMain} from "./mock/trip-info-main.js";
 import {renderElement, RenderPosition} from "./util.js";
@@ -15,61 +16,82 @@ import {renderElement, RenderPosition} from "./util.js";
 const POINTS_COUNT = 20;
 
 const routePoints = new Array(POINTS_COUNT).fill().map(generatePoint);
+const tripPointsContainer = document.querySelector(`.trip-events`);
+const tripPointsHeader = tripPointsContainer.querySelector(`h2`);
 
-const sortPointsByStartDate = (pointsArr) => pointsArr.sort((a, b) => a.startDate - b.startDate);
+if (routePoints.length === 0) {
+  renderElement(tripPointsHeader, new NoPointView().getElement(), RenderPosition.AFTEREND);
+} else {
 
-const sortedRoutePoints = sortPointsByStartDate(routePoints);
+  const sortPointsByStartDate = (pointsArr) => pointsArr.sort((a, b) => a.startDate - b.startDate);
 
-const tripInfoMain = generateTripInfoMain(sortedRoutePoints);
+  const sortedRoutePoints = sortPointsByStartDate(routePoints);
 
-const tripInfoComponent = new TripInfoView();
-const tripInfoContainer = document.querySelector(`.trip-main`);
-renderElement(tripInfoContainer, tripInfoComponent.getElement(), RenderPosition.ARTERBEGIN);
+  const tripInfoMain = generateTripInfoMain(sortedRoutePoints);
 
-renderElement(tripInfoComponent.getElement(), new TripInfoMainView(tripInfoMain).getElement(), RenderPosition.ARTERBEGIN);
-renderElement(tripInfoComponent.getElement(), new TripInfoCostView().getElement(), RenderPosition.BEFOREEND);
+  const tripInfoContainer = document.querySelector(`.trip-main`);
 
-const tripControls = document.querySelector(`.trip-controls`);
-const tripControlsHeaders = tripControls.querySelectorAll(`h2`);
-renderElement(tripControlsHeaders[0], new MenuTabsView().getElement(), RenderPosition.AFTEREND);
-renderElement(tripControlsHeaders[1], new FilterView().getElement(), RenderPosition.AFTEREND);
+  const pointListElement = new PointListView().getElement();
 
-const tripEvents = document.querySelector(`.trip-events`);
-const tripEventsHeader = tripEvents.querySelector(`h2`);
-renderElement(tripEventsHeader, new SortingView().getElement(), RenderPosition.AFTEREND);
+  const renderTripInfo = () => {
+    const tripInfoComponent = new TripInfoView();
+    renderElement(tripInfoContainer, tripInfoComponent.getElement(), RenderPosition.ARTERBEGIN);
 
-const eventListComponent = new EventListView();
-renderElement(tripEvents, eventListComponent.getElement(), RenderPosition.BEFOREEND);
-const pointsList = eventListComponent.getElement();
+    renderElement(tripInfoComponent.getElement(), new TripInfoMainView(tripInfoMain).getElement(), RenderPosition.ARTERBEGIN);
+    renderElement(tripInfoComponent.getElement(), new TripInfoCostView().getElement(), RenderPosition.BEFOREEND);
 
+    const tripControls = document.querySelector(`.trip-controls`);
+    const tripControlsHeaders = tripControls.querySelectorAll(`h2`);
+    renderElement(tripControlsHeaders[0], new MenuTabsView().getElement(), RenderPosition.AFTEREND);
+    renderElement(tripControlsHeaders[1], new FilterView().getElement(), RenderPosition.AFTEREND);
 
-const renderTask = (pointsListElement, point) => {
-  const pointComponent = new PointView(point);
-  const editPointComponent = new EditPointView(point);
+    renderElement(tripPointsHeader, new SortingView().getElement(), RenderPosition.AFTEREND);
 
-  const replacePointToForm = () => {
-    pointsListElement.replaceChild(editPointComponent.getElement(), pointComponent.getElement());
+    renderElement(tripPointsContainer, pointListElement, RenderPosition.BEFOREEND);
   };
 
-  const replaceFormToPoint = () => {
-    pointsListElement.replaceChild(pointComponent.getElement(), editPointComponent.getElement());
+  renderTripInfo();
+
+  const renderTask = (point) => {
+    const pointComponent = new PointView(point);
+    const editPointComponent = new EditPointView(point);
+
+    const onEscKeyDown = (evt) => {
+      if (evt.key === `Escape` || evt.key === `Esc`) {
+        evt.preventDefault();
+        replaceFormToPoint();
+        document.removeEventListener(`keydown`, onEscKeyDown);
+      }
+    };
+
+    const replacePointToForm = () => {
+      pointListElement.replaceChild(editPointComponent.getElement(), pointComponent.getElement());
+      document.addEventListener(`keydown`, onEscKeyDown);
+    };
+
+    const replaceFormToPoint = () => {
+      pointListElement.replaceChild(pointComponent.getElement(), editPointComponent.getElement());
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    };
+
+    pointComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+      replacePointToForm();
+
+    });
+
+    editPointComponent.getElement().querySelector(`form`).addEventListener(`submit`, (evt) => {
+      evt.preventDefault();
+      replaceFormToPoint();
+    });
+
+    editPointComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+      replaceFormToPoint();
+    });
+
+    renderElement(pointListElement, pointComponent.getElement(), RenderPosition.BEFOREEND);
   };
 
-  pointComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
-    replacePointToForm();
-  });
-
-  editPointComponent.getElement().querySelector(`form`).addEventListener(`submit`, () => {
-    replaceFormToPoint();
-  });
-
-  editPointComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
-    replaceFormToPoint();
-  });
-
-  renderElement(pointsListElement, pointComponent.getElement(), RenderPosition.BEFOREEND);
-};
-
-for (let i = 0; i < POINTS_COUNT; i++) {
-  renderTask(pointsList, sortedRoutePoints[i]);
+  for (let i = 0; i < POINTS_COUNT; i++) {
+    renderTask(sortedRoutePoints[i]);
+  }
 }
