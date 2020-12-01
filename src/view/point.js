@@ -16,6 +16,7 @@ const createPointOffersTemplate = (offers) => {
 };
 
 const getDuration = (startDate, endDate) => {
+
   const datesDiff = dayjs.duration(endDate.diff(startDate));
 
   const days = datesDiff.days();
@@ -97,6 +98,7 @@ const createPointTemplate = (eventItem) => {
 };
 
 export default class Point {
+
   constructor(sortedRoutePoint) {
     this._element = null;
     this._point = sortedRoutePoint;

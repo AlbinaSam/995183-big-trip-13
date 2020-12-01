@@ -1,5 +1,5 @@
 import flatpickr from "flatpickr";
-import createElement from "../util.js";
+import {createElement} from "../util.js";
 
 document.addEventListener(`DOMContentLoaded`, () => {
   const startDate = document.querySelector(`#event-start-time-1`);
