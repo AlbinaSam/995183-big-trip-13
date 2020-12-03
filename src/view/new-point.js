@@ -1,5 +1,5 @@
 import flatpickr from "flatpickr";
-import {createElement} from "../util.js";
+import AbstractView from "./abstract.js";
 
 document.addEventListener(`DOMContentLoaded`, () => {
   const startDate = document.querySelector(`#event-start-time-1`);
@@ -188,23 +188,9 @@ const createNewPointTemplate = () => {
 </li>`;
 };
 
-export default class NewPoint {
-  constructor() {
-    this._element = null;
-  }
+export default class NewPoint extends AbstractView {
 
   getTemplate() {
     return createNewPointTemplate();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

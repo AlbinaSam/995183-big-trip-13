@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import {createElement} from "../util.js";
+import AbstractView from "./abstract.js";
 
 const createEditPointOffersTemplate = (offers) => {
   return `${offers !== undefined ?
@@ -152,26 +152,36 @@ const createEditPointTemplate = (eventItem) => {
 </li>`;
 };
 
-export default class EditPoint {
+export default class EditPoint extends AbstractView {
   constructor(sortedRoutePoint) {
-    this._element = null;
+    super();
     this._point = sortedRoutePoint;
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._editPointClickHandler = this._editPointClickHandler.bind(this);
   }
 
   getTemplate() {
     return createEditPointTemplate(this._point);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit();
   }
 
-  removeElement() {
-    this._element = null;
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
+  }
+
+  _editPointClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.editPointClick();
+  }
+
+  setEditPointClickHandler(callback) {
+    this._callback.editPointClick = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editPointClickHandler);
   }
 }
 
