@@ -1,28 +1,9 @@
 import dayjs from "dayjs";
 import {getRandomInteger} from "../utils/common.js";
+import {Types} from "../const.js";
+import {Offers} from "../const.js";
 
 const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
-
-const Types = {
-  TAXI: `Taxi`,
-  BUS: `Bus`,
-  TRAIN: `Train`,
-  SHIP: `Ship`,
-  TRANSPORT: `Transport`,
-  DRIVE: `Drive`,
-  FLIGHT: `Flight`,
-  CHECK_IN: `Check-in`,
-  SIGHTSEENG: `Sightseeing`,
-  RESTAURANT: `Restaurant`
-};
-
-const Offers = {
-  ADD_LUGGAGE: `Add luggage`,
-  SWITCH_TO_COMFORT_CLASS: `Switch to comfort class`,
-  ADD_MEAL: `Add meal`,
-  CHOOSE_SEATS: `Choose seats`,
-  TRAVEL_BY_TRAIN: `Travel by train`
-};
 
 const DAYS_GAP = 90;
 const HOURS_GAP = 24;
