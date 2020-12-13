@@ -1,6 +1,8 @@
 import dayjs from "dayjs";
 import {getRandomInteger} from "../utils/common.js";
 
+const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+
 const Types = {
   TAXI: `Taxi`,
   BUS: `Bus`,
@@ -145,6 +147,7 @@ export const generatePoint = () => {
   const startDate = generateStartDate();
   const endDate = generateEndDate(startDate);
   return {
+    id: generateId(),
     type,
     destination: generateDestination(),
     offers,

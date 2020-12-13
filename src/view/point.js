@@ -64,6 +64,7 @@ const createPointTemplate = (eventItem) => {
     : ``;
 
   const offersTemplate = createPointOffersTemplate(offers);
+
   return `<li class="trip-events__item">
   <div class="event">
     <time class="event__date" datetime="2019-03-18">${day}</time>
@@ -103,6 +104,7 @@ export default class Point extends AbstractView {
     super();
     this._point = sortedRoutePoint;
     this._clickHandler = this._clickHandler.bind(this);
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
   }
 
   getTemplate() {
@@ -117,5 +119,15 @@ export default class Point extends AbstractView {
   setPointClickHandler(callback) {
     this._callback.pointClick = callback;
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._clickHandler);
+  }
+
+  _favoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteClick();
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, this._favoriteClickHandler);
   }
 }
