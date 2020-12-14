@@ -4,22 +4,28 @@ import NoPointView from "../view/no-point.js";
 import PointPresenter from "../presenter/point.js";
 import {render, RenderPosition} from "../utils/render.js";
 import {updateItem} from "../utils/common.js";
-
+import {SortingTypes} from "../const.js";
+import {sortByDuration, sortByPrice} from "../utils/sorting.js";
 
 export default class Trip {
   constructor(tripPointsContainer) {
     this._tripContainer = tripPointsContainer;
+    this._pointPresenter = {};
+    this._currentSortingType = SortingTypes.DEFAULT;
 
     this._sortingComponent = new SortingView();
     this._pointListComponent = new PointListView();
     this._noPointComponent = new NoPointView();
-    this._pointPresenter = {};
+
     this._handlePointChange = this._handlePointChange.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
+    this._handleSortingTypeChange = this._handleSortingTypeChange.bind(this);
   }
 
   init(tripPoints) {
     this._tripPoints = tripPoints.slice();
+
+    this._sourcedTripPoints = tripPoints.slice();
 
     this._renderTrip();
   }
@@ -35,6 +41,7 @@ export default class Trip {
 
   _renderSorting() {
     render(this._tripContainer, this._sortingComponent, RenderPosition.BEFOREEND);
+    this._sortingComponent.setSortingTypeChangeHandler(this._handleSortingTypeChange);
   }
 
   _renderPointListContainer() {
@@ -71,5 +78,33 @@ export default class Trip {
     this._renderSorting();
     this._renderPointListContainer();
     this._renderPointList();
+  }
+
+  _sortPoints(sortingType) {
+    switch (sortingType) {
+      case SortingTypes.BY_TIME:
+        sortByDuration(this._tripPoints);
+        break;
+
+      case SortingTypes.BY_PRICE:
+        sortByPrice(this._tripPoints);
+        break;
+
+      default:
+        this._tripPoints = this._sourcedTripPoints.slice;
+    }
+
+    this._currentSortingType = sortingType;
+  }
+
+  _handleSortingTypeChange(sortingType) {
+    if (this._currentSortingType === sortingType) {
+      return;
+    }
+
+    this._sortPoints(sortingType);
+
+    this._clearPointList();
+    this._renderTrip();
   }
 }

@@ -7,35 +7,32 @@ import {generatePoint} from "./mock/point.js";
 import {generateTripInfoMain} from "./mock/trip-info-main.js";
 import {render, RenderPosition} from "./utils/render.js";
 import TripPresenter from "./presenter/trip.js";
+import {sortByDate} from "./utils/sorting.js";
 
 const POINTS_COUNT = 20;
-
 const tripPoints = new Array(POINTS_COUNT).fill().map(generatePoint);
 
-const tripPointsContainer = document.querySelector(`.trip-events`);
+const tripControls = document.querySelector(`.trip-controls`);
+const tripControlsHeaders = tripControls.querySelectorAll(`h2`);
+render(tripControlsHeaders[0], new MenuTabsView(), RenderPosition.AFTEREND);
+render(tripControlsHeaders[1], new FilterView(), RenderPosition.AFTEREND);
 
-const tripPresenter = new TripPresenter(tripPointsContainer);
-
-const sortPointsByStartDate = (pointsArr) => pointsArr.sort((a, b) => a.startDate - b.startDate);
-
-const sortedTripPoints = sortPointsByStartDate(tripPoints);
-
-const tripInfoMain = generateTripInfoMain(sortedTripPoints);
-
-
-const tripInfoContainer = document.querySelector(`.trip-main`);
-const renderTripInfo = () => {
+const renderTripInfo = (tripInfoMain) => {
+  const tripInfoContainer = document.querySelector(`.trip-main`);
   const tripInfoComponent = new TripInfoView();
   render(tripInfoContainer, tripInfoComponent, RenderPosition.ARTERBEGIN);
 
   render(tripInfoComponent, new TripInfoMainView(tripInfoMain), RenderPosition.ARTERBEGIN);
   render(tripInfoComponent, new TripInfoCostView(), RenderPosition.BEFOREEND);
-
-  const tripControls = document.querySelector(`.trip-controls`);
-  const tripControlsHeaders = tripControls.querySelectorAll(`h2`);
-  render(tripControlsHeaders[0], new MenuTabsView(), RenderPosition.AFTEREND);
-  render(tripControlsHeaders[1], new FilterView(), RenderPosition.AFTEREND);
 };
-renderTripInfo();
 
-tripPresenter.init(sortedTripPoints);
+if (tripPoints.length !== 0) {
+  const sortedTripPoints = sortByDate(tripPoints);
+
+  const tripInfoMain = generateTripInfoMain(sortedTripPoints);
+  renderTripInfo(tripInfoMain);
+
+  const tripPointsContainer = document.querySelector(`.trip-events`);
+  const tripPresenter = new TripPresenter(tripPointsContainer);
+  tripPresenter.init(sortedTripPoints);
+}
