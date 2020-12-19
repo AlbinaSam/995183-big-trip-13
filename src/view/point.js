@@ -2,18 +2,21 @@ import AbstractView from "./abstract.js";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
+import {OffersDetails} from "../const.js";
 
-const createPointOffersTemplate = (offers) => {
-  return `${offers !== undefined ? `<ul class="event__selected-offers">
-    ${offers.map(function ({title, price}) {
+const createPointOffersTemplate = function (offers) {
+  return `${offers !== undefined || offers.length !== 0 ?
+    `<ul class="event__selected-offers">
+    ${offers.map(function (offer) {
     return `<li class="event__offer">
-    <span class="event__offer-title">${title}</span>
-    &plus;&euro;&nbsp;
-    <span class="event__offer-price">${price}</span>
-  </li>`;
+        <span class="event__offer-title">${OffersDetails[offer].title}</span>
+        &plus;&euro;&nbsp;
+        <span class="event__offer-price">${OffersDetails[offer].price}</span>
+      </li>`;
   }).join(``)}
-  </ul>` : ``}`;
+  </ul>` : `` }`;
 };
+
 
 const getDuration = (startDate, endDate) => {
 
@@ -47,8 +50,8 @@ const getDuration = (startDate, endDate) => {
 };
 
 const createPointTemplate = (eventItem) => {
-  const {type, destination, offers, price, isFavorite, startDate, endDate} = eventItem;
 
+  const {type, destination, offers, price, isFavorite, startDate, endDate} = eventItem;
   const formattedStartDate = dayjs(startDate).format(`DD/MM/YY HH:mm`);
   const formattedEndDate = dayjs(endDate).format(`DD/MM/YY HH:mm`);
 
