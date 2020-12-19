@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import {getRandomInteger} from "../utils/common.js";
 import {Types} from "../const.js";
 import {Offers} from "../const.js";
+import {OffersDetails} from "../const.js";
 
 const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
 
@@ -23,71 +24,53 @@ const generateDestination = () => {
   return destinations[randomIndex];
 };
 
-const generateOffer = () => {
-
-  const offers = Object.values(Offers);
-
-  const offersDetails = {
-    'Add luggage': {
-      price: 30,
-      name: `luggage`
-    },
-    'Switch to comfort class': {
-      price: 100,
-      name: `comfort`
-    },
-    'Add meal': {
-      price: 15,
-      name: `meal`
-    },
-    'Choose seats': {
-      price: 5,
-      name: `seats`
-    },
-    'Travel by train': {
-      price: 40,
-      name: `train`
-    }
-  };
-
-  const randomIndex = getRandomInteger(0, offers.length - 1);
-  const randomOffer = offers[randomIndex];
-
-  return {
-    title: randomOffer,
-    price: offersDetails[randomOffer].price,
-    name: offersDetails[randomOffer].name,
-    isChecked: Boolean(getRandomInteger(0, 1))
-  };
-};
-
 const generateOffersList = () => {
-  const randomLength = getRandomInteger(1, 5);
-  const offers = [];
+  const offers = Object.values(Offers);
+  const randomLength = getRandomInteger(0, 5);
+  const pointOffers = {};
 
   for (let i = 0; i < randomLength; i++) {
-    const offer = generateOffer();
-    offers.push(offer);
+    const randomOffer = offers[getRandomInteger(0, offers.length - 1)];
+
+    pointOffers[randomOffer] = OffersDetails[randomOffer];
   }
-  return offers;
+  return pointOffers;
 };
 
 const genereateOffersForPointType = () => {
-  const pointTypeOffers = {};
+  const pointTypesOffers = {};
 
   pointTypes.forEach((type) => {
-    pointTypeOffers[type] = generateOffersList();
+    pointTypesOffers[type] = generateOffersList();
   });
 
-  return pointTypeOffers;
+  return pointTypesOffers;
 };
 
-const pointTypeOffers = genereateOffersForPointType();
+export const pointTypesOffers = genereateOffersForPointType();
+
+
+const generateOffersForPoint = (type) => {
+
+  const typeOffers = Object.keys(pointTypesOffers[type]);
+
+  const randomLength = getRandomInteger(0, typeOffers.length - 1);
+
+  let offers = new Set();
+
+  for (let i = 0; i < randomLength; i++) {
+    const randomIndex = getRandomInteger(0, typeOffers.length - 1);
+    offers.add(typeOffers[randomIndex]);
+  }
+
+  offers = Array.from(offers);
+  return offers;
+};
 
 const generateDescription = () => {
   let text = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
   text = text.slice(0, -1).split(`. `);
-  const randomLength = getRandomInteger(1, 5);
+  const randomLength = getRandomInteger(0, 5);
   const description = [];
   for (let i = 0; i < randomLength; i++) {
     let sentence = text[getRandomInteger(0, text.length - 1)];
@@ -96,14 +79,41 @@ const generateDescription = () => {
   return description.join(`. `) + `.`;
 };
 
-const geneatePhotosList = () => {
-  const randomLength = getRandomInteger(1, 5);
+const generatePhotosList = () => {
+  const randomLength = getRandomInteger(0, 4);
   const photos = [];
   for (let i = 0; i < randomLength; i++) {
-    let photo = `http://picsum.photos/248/152`;
+    let photo = `http://picsum.photos/id/${getRandomInteger(0, 100)}/248/152`;
     photos.push(photo);
   }
   return photos;
+};
+
+export const destinationDetails = {
+  Rome: {
+    description: generateDescription(),
+    photos: generatePhotosList()
+  },
+  Paris: {
+    description: generateDescription(),
+    photos: generatePhotosList()
+  },
+  Berlin: {
+    description: generateDescription(),
+    photos: generatePhotosList()
+  },
+  Milan: {
+    description: generateDescription(),
+    photos: generatePhotosList()
+  },
+  Amsterdam: {
+    description: generateDescription(),
+    photos: generatePhotosList()
+  },
+  Brussels: {
+    description: generateDescription(),
+    photos: generatePhotosList()
+  }
 };
 
 const generateStartDate = () => {
@@ -124,16 +134,17 @@ const generateEndDate = (startDate) => {
 
 export const generatePoint = () => {
   const type = generateType();
-  const offers = pointTypeOffers[type];
+  const destination = generateDestination();
+  const offers = generateOffersForPoint(type);
   const startDate = generateStartDate();
   const endDate = generateEndDate(startDate);
   return {
     id: generateId(),
     type,
-    destination: generateDestination(),
+    destination,
     offers,
-    description: generateDescription(),
-    photos: geneatePhotosList(),
+    description: destinationDetails[destination].description,
+    photos: destinationDetails[destination].photos,
     price: getRandomInteger(50, 500),
     isFavorite: Boolean(getRandomInteger(0, 1)),
     startDate,

@@ -23,7 +23,7 @@ export default class Trip {
   }
 
   init(tripPoints) {
-    this._tripPoints = tripPoints.slice();
+    this._tripPoints = tripPoints.slice(); // зачем здесь slice?
 
     this._sourcedTripPoints = tripPoints.slice();
 
@@ -91,7 +91,7 @@ export default class Trip {
         break;
 
       default:
-        this._tripPoints = this._sourcedTripPoints.slice;
+        this._tripPoints = this._sourcedTripPoints.slice();
     }
 
     this._currentSortingType = sortingType;
