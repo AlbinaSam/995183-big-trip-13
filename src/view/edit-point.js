@@ -2,6 +2,8 @@ import dayjs from "dayjs";
 import SmartView from "./smart.js";
 import {pointTypesOffers, destinationDetails} from "../mock/point.js";
 import {Types, OffersDetails} from "../const.js";
+import flatpickr from "flatpickr";
+import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const createEditPointOffersTemplate = (type, offers) => {
   const pointOffers = pointTypesOffers[type];
@@ -128,6 +130,8 @@ const createEditPointTemplate = (eventItem) => {
 export default class EditPoint extends SmartView {
   constructor(sortedRoutePoint) {
     super();
+    this._startDatepicker = null;
+    this._endDatepicker = null;
     this._point = sortedRoutePoint;
     this._originalPoint = sortedRoutePoint;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
@@ -135,8 +139,11 @@ export default class EditPoint extends SmartView {
     this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
     this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
     this._offersChangeHandler = this._offersChangeHandler.bind(this);
+    this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
+    this._endDateChangeHandler = this._endDateChangeHandler.bind(this);
 
     this._setInnerHandlers();
+    this._setDatePickers();
   }
 
   getTemplate() {
@@ -196,6 +203,7 @@ export default class EditPoint extends SmartView {
 
   restoreHandlers() {
     this._setInnerHandlers();
+    this._setDatePickers();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setEditPointClickHandler(this._callback.editPointClick);
   }
@@ -211,6 +219,42 @@ export default class EditPoint extends SmartView {
 
   reset() {
     this.updatePoint(this._originalPoint);
+  }
+
+  _setDatePickers() {
+    if (this._startDatepicker) {
+      this._startDatepicker.destroy();
+      this._startDatepicker = null;
+    }
+
+    this._startDatepicker = flatpickr(this.getElement().querySelector(`#event-start-time-1`), {
+      enableTime: true,
+      dateFormat: `d/m/y H:i`,
+      minDate: `today`,
+      onChange: this._startDateChangeHandler
+    });
+
+
+    if (this._endDatepicker) {
+      this._endDatepicker.destroy();
+      this._endDatepicker = null;
+    }
+
+    this._endDatepicker = flatpickr(this.getElement().querySelector(`#event-end-time-1`), {
+      enableTime: true,
+      dateFormat: `d/m/y H:i`,
+      minDate: this.getElement().querySelector(`#event-start-time-1`).value,
+      onChange: this._endDateChangeHandler
+    });
+
+  }
+
+  _startDateChangeHandler(userdate) {
+    this.updatePoint({startDate: dayjs(userdate)});
+  }
+
+  _endDateChangeHandler(userdate) {
+    this.updatePoint({endDate: dayjs(userdate)});
   }
 }
 
