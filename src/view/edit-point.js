@@ -1,24 +1,30 @@
 import dayjs from "dayjs";
 import SmartView from "./smart.js";
-import {pointTypesOffers, destinationDetails} from "../mock/point.js";
-import {Types, OffersDetails} from "../const.js";
+import {Types, destinationList} from "../const.js";
+import {isNumber} from "../utils/common.js";
 import flatpickr from "flatpickr";
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
-const createEditPointOffersTemplate = (type, offers) => {
-  const pointOffers = pointTypesOffers[type];
+const createDestinationList = (destinations) => {
+  return `${Object.values(destinations).map((destinationOption) =>
+    `<option value="${destinationOption}"></option>`
+  ).join(``)}`;
+};
 
-  return `${Object.keys(pointOffers).length !== 0 ?
+
+const createEditPointOffersTemplate = (typeOffers, offers) => {
+
+  return `${Object.keys(typeOffers).length !== 0 ?
     `<section class="event__section  event__section--offers">
       <h3 class="event__section-title  event__section-title--offers">Offers</h3>
       <div class="event__available-offers">
-      ${Object.keys(pointOffers).map(function (pointOffer) {
+      ${Object.keys(typeOffers).map(function (typeOffer) {
     return `<div class="event__offer-selector">
-    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${pointOffer}-1" type="checkbox" name="event-offer-${pointOffer}" data-offer-name="${pointOffer}" ${offers.includes(pointOffer) ? `checked` : ``}>
-    <label class="event__offer-label" for="event-offer-${pointOffer}-1">
-      <span class="event__offer-title">${OffersDetails[pointOffer].title}</span>
+    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${typeOffer}-1" type="checkbox" name="event-offer-${typeOffer}" data-offer-name="${typeOffer}" ${offers.includes(typeOffer) ? `checked` : ``}>
+    <label class="event__offer-label" for="event-offer-${typeOffer}-1">
+      <span class="event__offer-title">${typeOffers[typeOffer].title}</span>
       &plus;&euro;&nbsp;
-      <span class="event__offer-price">${OffersDetails[pointOffer].price}</span>
+      <span class="event__offer-price">${typeOffers[typeOffer].price}</span>
     </label>
   </div>`;
   }).join(``)}
@@ -56,13 +62,17 @@ const createEventTypeItem = (type) => {
 </div>`).join(``);
 };
 
-const createEditPointTemplate = (eventItem) => {
-  const {type, destination, offers, description, photos, price, startDate, endDate} = eventItem;
+const createEditPointTemplate = (eventItem, typeOffers, destinationDetails) => {
+
+  const {type, destination, offers, price, startDate, endDate} = eventItem;
+  const {description, photos} = destinationDetails;
   const lowerType = type.toLowerCase();
   const formattedStartDate = dayjs(startDate).format(`DD/MM/YY HH:mm`);
   const formattedEndDate = dayjs(endDate).format(`DD/MM/YY HH:mm`);
-  const offersTemplate = createEditPointOffersTemplate(type, offers);
+  const offersTemplate = createEditPointOffersTemplate(typeOffers, offers);
   const destinationTemplate = createDestinationTemplate(description, photos);
+  const eventTypeItem = createEventTypeItem(type);
+  const destinationOptions = createDestinationList(destinationList);
 
   return `<li class="trip-events__item">
   <form class="event event--edit" action="#" method="post">
@@ -77,7 +87,7 @@ const createEditPointTemplate = (eventItem) => {
         <div class="event__type-list">
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Event type</legend>
-            ${createEventTypeItem(type)}
+            ${eventTypeItem}
           </fieldset>
         </div>
       </div>
@@ -88,12 +98,7 @@ const createEditPointTemplate = (eventItem) => {
         </label>
         <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1" autocomplete="off">
         <datalist id="destination-list-1">
-          <option value="Rome"></option>
-          <option value="Paris"></option>
-          <option value="Berlin"></option>
-          <option value="Milan"></option>
-          <option value="Amsterdam"></option>
-          <option value="Brussels"></option>
+        ${destinationOptions}
         </datalist>
       </div>
 
@@ -128,26 +133,30 @@ const createEditPointTemplate = (eventItem) => {
 };
 
 export default class EditPoint extends SmartView {
-  constructor(sortedRoutePoint) {
+  constructor(sortedRoutePoint, typeOffersModel, destinationDetailsModel) {
     super();
     this._startDatepicker = null;
     this._endDatepicker = null;
     this._point = sortedRoutePoint;
+    this._typeOffersModel = typeOffersModel;
+    this._destinationDetailsModel = destinationDetailsModel;
     this._originalPoint = sortedRoutePoint;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._editPointClickHandler = this._editPointClickHandler.bind(this);
     this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
     this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
+    this._priceChangeHandler = this._priceChangeHandler.bind(this);
     this._offersChangeHandler = this._offersChangeHandler.bind(this);
     this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
     this._endDateChangeHandler = this._endDateChangeHandler.bind(this);
+    this._pointDeleteClickHandler = this._pointDeleteClickHandler.bind(this);
 
     this._setInnerHandlers();
     this._setDatePickers();
   }
 
   getTemplate() {
-    return createEditPointTemplate(this._point);
+    return createEditPointTemplate(this._point, this._typeOffersModel.getOffers(this._point.type), this._destinationDetailsModel.getDestinationDetails(this._point.destination));
   }
 
   _formSubmitHandler(evt) {
@@ -183,11 +192,12 @@ export default class EditPoint extends SmartView {
 
   _destinationChangeHandler(evt) {
     evt.preventDefault();
+
     const newDestination = evt.target.value;
-    if (newDestination) {
-      this.updatePoint({destination: newDestination,
-        description: destinationDetails[newDestination].description,
-        photos: destinationDetails[newDestination].photos});
+
+    const isExistedDestination = Object.values(destinationList).includes(newDestination);
+    if (newDestination && isExistedDestination) {
+      this.updatePoint({destination: newDestination});
     }
   }
 
@@ -201,16 +211,29 @@ export default class EditPoint extends SmartView {
     this.updatePoint({offers: checkedOffers}, true);
   }
 
+  _priceChangeHandler(evt) {
+
+    const numericalValue = Number(evt.target.value);
+
+    if (isNumber(numericalValue) && Number.isInteger(numericalValue)) {
+      this.updatePoint({price: evt.target.value}, true);
+    } else {
+      evt.target.value = evt.target.value.replace(/[^\d]/g, ``);
+    }
+  }
+
   restoreHandlers() {
     this._setInnerHandlers();
     this._setDatePickers();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setEditPointClickHandler(this._callback.editPointClick);
+    this.setDeleteClickHandler(this._callback.deleteClick);
   }
 
   _setInnerHandlers() {
     this.getElement().querySelector(`.event__type-group`).addEventListener(`click`, this._eventTypeChangeHandler);
     this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, this._destinationChangeHandler);
+    this.getElement().querySelector(`.event__input--price`).addEventListener(`input`, this._priceChangeHandler);
     const offers = this.getElement().querySelector(`.event__available-offers`);
     if (offers) {
       offers.addEventListener(`change`, this._offersChangeHandler);
@@ -219,6 +242,17 @@ export default class EditPoint extends SmartView {
 
   reset() {
     this.updatePoint(this._originalPoint);
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this._startDatepicker || this._endDatepicker) {
+      this._startDatepicker.destroy();
+      this._startDatepicker = null;
+      this._endDatepicker.destroy();
+      this._endDatepicker = null;
+    }
   }
 
   _setDatePickers() {
@@ -246,7 +280,6 @@ export default class EditPoint extends SmartView {
       minDate: this.getElement().querySelector(`#event-start-time-1`).value,
       onChange: this._endDateChangeHandler
     });
-
   }
 
   _startDateChangeHandler(userdate) {
@@ -255,6 +288,16 @@ export default class EditPoint extends SmartView {
 
   _endDateChangeHandler(userdate) {
     this.updatePoint({endDate: dayjs(userdate)});
+  }
+
+  _pointDeleteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.deleteClick(this._point);
+  }
+
+  setDeleteClickHandler(callback) {
+    this._callback.deleteClick = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._pointDeleteClickHandler);
   }
 }
 

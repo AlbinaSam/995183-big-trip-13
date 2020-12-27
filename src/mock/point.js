@@ -4,7 +4,7 @@ import {Types} from "../const.js";
 import {Offers} from "../const.js";
 import {OffersDetails} from "../const.js";
 
-const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
 
 const DAYS_GAP = 90;
 const HOURS_GAP = 24;
@@ -143,8 +143,6 @@ export const generatePoint = () => {
     type,
     destination,
     offers,
-    description: destinationDetails[destination].description,
-    photos: destinationDetails[destination].photos,
     price: getRandomInteger(50, 500),
     isFavorite: Boolean(getRandomInteger(0, 1)),
     startDate,

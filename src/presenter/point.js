@@ -1,6 +1,8 @@
 import PointView from "../view/point.js";
 import EditPointView from "../view/edit-point.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
+import {UserAction, UpdateType} from "../const.js";
+import {isDatesEqual} from "../utils/common.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -9,7 +11,7 @@ const Mode = {
 
 export default class Point {
   constructor(pointListComponent, changeData, changeMode) {
-    this._pointListComponent = pointListComponent;
+    this._pointListContainer = pointListComponent;
     this._changeData = changeData;
     this._changeMode = changeMode;
 
@@ -22,24 +24,24 @@ export default class Point {
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleEditPointClick = this._handleEditPointClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
   }
 
-  init(point) {
+  init(point, typeOffersModel, destinationDetailsModel) {
     this._point = point;
-
     const prevPointComponent = this._pointComponent;
     const prevEditPointComponent = this._editPointComponent;
 
     this._pointComponent = new PointView(this._point);
-    this._editPointComponent = new EditPointView(this._point);
-
+    this._editPointComponent = new EditPointView(this._point, typeOffersModel, destinationDetailsModel);
     this._pointComponent.setPointClickHandler(this._handlePointClick);
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._editPointComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._editPointComponent.setEditPointClickHandler(this._handleEditPointClick);
+    this._editPointComponent.setDeleteClickHandler(this._handleDeleteClick);
 
     if (prevPointComponent === null || prevEditPointComponent === null) {
-      render(this._pointListComponent, this._pointComponent, RenderPosition.BEFOREEND);
+      render(this._pointListContainer, this._pointComponent, RenderPosition.BEFOREEND);
       return;
     }
 
@@ -93,16 +95,34 @@ export default class Point {
   }
 
   _handleFavoriteClick() {
-    this._changeData(Object.assign({}, this._point, {isFavorite: !this._point.isFavorite}));
+    this._changeData(
+        UserAction.UPDATE_POINT,
+        UpdateType.PATCH,
+        Object.assign({}, this._point, {isFavorite: !this._point.isFavorite}));
   }
 
-  _handleFormSubmit(point) {
-    this._changeData(point);
+  _handleFormSubmit(update) {
+
+    const isMinorUpdate = !isDatesEqual(this._point.startDate, update.startDate) ||
+    !isDatesEqual(this._point.endDate, update.endDate);
+
+    this._changeData(
+        UserAction.UPDATE_POINT,
+        isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+        update);
+
     this._replaceFormToPoint();
   }
 
   _handleEditPointClick() {
     this._editPointComponent.reset();
     this._replaceFormToPoint();
+  }
+
+  _handleDeleteClick(point) {
+    this._changeData(
+        UserAction.DELETE_POINT,
+        UpdateType.MINOR,
+        point);
   }
 }
