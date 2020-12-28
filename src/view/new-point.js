@@ -220,15 +220,15 @@ export default class NewPoint extends SmartView {
   }
 
   _priceChangeHandler(evt) {
+    evt.target.value = evt.target.value.replace(/[^\d]/g, ``);
 
     const numericalValue = Number(evt.target.value);
 
-    if (isNumber(numericalValue) && Number.isInteger(numericalValue)) {
-      this.updatePoint({price: evt.target.value}, true);
-    } else {
-      evt.target.value = evt.target.value.replace(/[^\d]/g, ``);
+    if (numericalValue !== this._point.price) {
+      this.updatePoint({price: numericalValue}, true);
     }
   }
+
   _setInnerHandlers() {
     this.getElement().querySelector(`.event__type-group`).addEventListener(`click`, this._eventTypeChangeHandler);
     this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, this._destinationChangeHandler);

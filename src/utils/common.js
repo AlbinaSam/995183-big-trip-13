@@ -10,7 +10,3 @@ export const getRandomInteger = (a = 0, b = 1) => {
 export const isDatesEqual = (dateA, dateB) => {
   return dayjs(dateA).isSame(dateB);
 };
-
-export const isNumber = (num) => {
-  return typeof num === `number` && !isNaN(num);
-};

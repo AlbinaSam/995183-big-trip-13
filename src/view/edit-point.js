@@ -1,7 +1,6 @@
 import dayjs from "dayjs";
 import SmartView from "./smart.js";
 import {Types, destinationList} from "../const.js";
-import {isNumber} from "../utils/common.js";
 import flatpickr from "flatpickr";
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
@@ -212,13 +211,12 @@ export default class EditPoint extends SmartView {
   }
 
   _priceChangeHandler(evt) {
+    evt.target.value = evt.target.value.replace(/[^\d]/g, ``);
 
     const numericalValue = Number(evt.target.value);
 
-    if (isNumber(numericalValue) && Number.isInteger(numericalValue)) {
-      this.updatePoint({price: evt.target.value}, true);
-    } else {
-      evt.target.value = evt.target.value.replace(/[^\d]/g, ``);
+    if (numericalValue !== this._point.price) {
+      this.updatePoint({price: numericalValue}, true);
     }
   }
 
