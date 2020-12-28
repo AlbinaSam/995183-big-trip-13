@@ -1,7 +1,6 @@
 import SmartView from "./smart.js";
 import dayjs from "dayjs";
 import {Types, BLANK_POINT, destinationList} from "../const.js";
-import {isNumber} from "../utils/common.js";
 import flatpickr from "flatpickr";
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
