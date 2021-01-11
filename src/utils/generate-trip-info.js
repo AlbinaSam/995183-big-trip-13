@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
-const DESTINATIONS_COUNT = 3;
+import {sortByDate} from "../utils/sorting.js";
+import {DESTINATIONS_COUNT} from "../const.js";
 
 const getRouteName = (sortedRoutePoints) => {
   let destinations = [];
@@ -25,7 +26,8 @@ const getRouteDates = (sortedRoutePoints) => {
   return `${dayjs(startDate).format(`MMM D`)} &nbsp;&mdash;&nbsp; ${dayjs(endDate).format(`MMM D`)}`;
 };
 
-export const generateTripInfoMain = (sortedRoutePoints) => {
+export const generateTripInfoMain = (points) => {
+  const sortedRoutePoints = points.sort(sortByDate);
   return {
     route: getRouteName(sortedRoutePoints),
     dates: getRouteDates(sortedRoutePoints)
