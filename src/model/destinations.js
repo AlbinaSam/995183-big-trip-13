@@ -1,12 +1,13 @@
-import {destinationDetails} from "../mock/point.js";
-import Observer from "../utils/observer.js";
-
-export default class Destination extends Observer {
+export default class Destination {
   constructor() {
-    super();
+    this._destinationDetails = {};
+  }
+
+  setDestinationDetails(destinationDetails) {
+    this._destinationDetails = destinationDetails;
   }
 
   getDestinationDetails(destination) {
-    return destinationDetails[destination];
+    return this._destinationDetails[destination];
   }
 }

@@ -1,13 +1,14 @@
-import {pointTypesOffers} from "../mock/point.js";
-import Observer from "../utils/observer.js";
-
-export default class Offers extends Observer {
+export default class Offers {
   constructor() {
-    super();
+    this._pointsTypeOffers = {};
+  }
+
+  setTypeOffers(pointTypesOffers) {
+    this._pointsTypeOffers = pointTypesOffers;
   }
 
   getOffers(type) {
-    return pointTypesOffers[type];
+    return this._pointsTypeOffers[type];
   }
 }
 

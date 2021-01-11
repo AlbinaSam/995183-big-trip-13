@@ -1,24 +1,28 @@
 import TripInfoView from "../view/trip-info.js";
 import TripInfoMainView from "../view/trip-info-main.js";
 import TripInfoCostView from "../view/trip-info-cost.js";
-
 import SortingView from "../view/sorting.js";
 import PointListView from "../view/point-list.js";
 import NoPointView from "../view/no-point.js";
+
 import PointPresenter from "./point.js";
 import NewPointPresenter from "./new-point.js";
+
 import {remove, render, RenderPosition} from "../utils/render.js";
 import {SortingTypes, UserAction, UpdateType, FilterType} from "../const.js";
 import {sortByDate, sortByDuration, sortByPrice} from "../utils/sorting.js";
 import {filter} from "../utils/filter.js";
 import {generateTripInfoMain} from "../utils/generate-trip-info.js";
+import {destinationDetails, pointTypesOffers} from "../mock/point.js";
 
 
 export default class Trip {
   constructor(tripPointsContainer, pointsModel, offersModel, destinationsModel, filterModel, tripInfoContainer) {
     this._pointsModel = pointsModel;
     this._offersModel = offersModel;
+    this._offersModel.setTypeOffers(pointTypesOffers);
     this._destinationsModel = destinationsModel;
+    this._destinationsModel.setDestinationDetails(destinationDetails);
     this._filterModel = filterModel;
 
     this._tripContainer = tripPointsContainer;
@@ -143,6 +147,7 @@ export default class Trip {
     }
     this._sortingComponent = new SortingView(this._currentSortingType);
     render(this._tripContainer, this._sortingComponent, RenderPosition.BEFOREEND);
+
     this._sortingComponent.setSortingTypeChangeHandler(this._handleSortingTypeChange);
   }
 
@@ -160,7 +165,7 @@ export default class Trip {
     this._pointPresenter[point.id] = pointPresenter;
   }
 
-  _renderPointList() { // renderTasks
+  _renderPointList() {
     this._getPoints().forEach((tripPoint) => this._renderPoint(tripPoint));
   }
 
@@ -209,5 +214,16 @@ export default class Trip {
     this._currentSortingType = SortingTypes.DEFAULT;
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this._newPointPresenter.init(this._offersModel, this._destinationsModel, createPointButton);
+  }
+
+  showTrip() {
+    this._tripContainer.classList.remove(`trip-events--hidden`);
+    this._currentSortingType = SortingTypes.DEFAULT;
+    this._clearTrip();
+    this._renderTrip();
+  }
+
+  hideTrip() {
+    this._tripContainer.classList.add(`trip-events--hidden`);
   }
 }

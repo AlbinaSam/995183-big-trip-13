@@ -134,11 +134,11 @@ const createNewPointTemplate = (eventItem, typeOffers, destinationDetails) => {
 };
 
 export default class NewPoint extends SmartView {
-  constructor(typeOffersModel, destinationDetailsModel) {
+  constructor(getPointOffers, getDestinationDetails) {
     super();
     this._point = BLANK_POINT;
-    this._typeOffersModel = typeOffersModel;
-    this._destinationDetailsModel = destinationDetailsModel;
+    this._getPointOffers = getPointOffers;
+    this._getDestinationDetails = getDestinationDetails;
 
 
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
@@ -156,7 +156,7 @@ export default class NewPoint extends SmartView {
   }
 
   getTemplate() {
-    return createNewPointTemplate(this._point, this._typeOffersModel.getOffers(this._point.type), this._destinationDetailsModel.getDestinationDetails(this._point.destination));
+    return createNewPointTemplate(this._point, this._getPointOffers(this._point), this._getDestinationDetails(this._point));
   }
 
   _formSubmitHandler(evt) {

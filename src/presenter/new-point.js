@@ -10,28 +10,37 @@ export default class NewPointPresenter {
     this._changeData = changeData;
 
     this._newPointComponent = null;
-
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
-
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
-
     this._handleCancelClick = this._handleCancelClick.bind(this);
+    this._getPointOffers = this._getPointOffers.bind(this);
+    this._getDestinationDetails = this._getDestinationDetails.bind(this);
   }
 
   init(typeOffersModel, destinationDetailsModel, createPointButton) {
+
+    this._typeOffersModel = typeOffersModel;
+    this._destinationDetailsModel = destinationDetailsModel;
 
     if (this._newPointComponent !== null) {
       return;
     }
 
     this._createPointButton = createPointButton;
-    this._newPointComponent = new NewPointView(typeOffersModel, destinationDetailsModel);
+    this._newPointComponent = new NewPointView(this._getPointOffers, this._getDestinationDetails);
     this._newPointComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._newPointComponent.setCancelClickHanler(this._handleCancelClick);
 
     render(this._pointListContainer, this._newPointComponent, RenderPosition.ARTERBEGIN);
-
     document.addEventListener(`keydown`, this._escKeyDownHandler);
+  }
+
+  _getPointOffers(point) {
+    return this._typeOffersModel.getOffers(point.type);
+  }
+
+  _getDestinationDetails(point) {
+    return this._destinationDetailsModel.getDestinationDetails(point.destination);
   }
 
   destroy() {

@@ -86,3 +86,8 @@ export const destinationList = {
   AMSTERDAM: `Amsterdam`,
   BRUSSELS: `Brussels`
 };
+
+export const MenuItem = {
+  TABLE: `Table`,
+  STATS: `Stats`
+};

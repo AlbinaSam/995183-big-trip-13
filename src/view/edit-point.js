@@ -132,13 +132,13 @@ const createEditPointTemplate = (eventItem, typeOffers, destinationDetails) => {
 };
 
 export default class EditPoint extends SmartView {
-  constructor(sortedRoutePoint, typeOffersModel, destinationDetailsModel) {
+  constructor(sortedRoutePoint, getPointOffers, getDestinationDetails) {
     super();
     this._startDatepicker = null;
     this._endDatepicker = null;
     this._point = sortedRoutePoint;
-    this._typeOffersModel = typeOffersModel;
-    this._destinationDetailsModel = destinationDetailsModel;
+    this._getPointOffers = getPointOffers;
+    this._getDestinationDetails = getDestinationDetails;
     this._originalPoint = sortedRoutePoint;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._editPointClickHandler = this._editPointClickHandler.bind(this);
@@ -155,7 +155,7 @@ export default class EditPoint extends SmartView {
   }
 
   getTemplate() {
-    return createEditPointTemplate(this._point, this._typeOffersModel.getOffers(this._point.type), this._destinationDetailsModel.getDestinationDetails(this._point.destination));
+    return createEditPointTemplate(this._point, this._getPointOffers(this._point), this._getDestinationDetails(this._point));
   }
 
   _formSubmitHandler(evt) {
