@@ -28,6 +28,7 @@ const tripControlsHeaders = tripControls.querySelectorAll(`h2`);
 let menuTabsComponent = new MenuTabsView(MenuItem.TABLE);
 render(tripControlsHeaders[0], menuTabsComponent, RenderPosition.AFTEREND);
 
+
 const filterPresenter = new FilterPresenter(tripControlsHeaders[1], filterModel);
 filterPresenter.init();
 
@@ -37,7 +38,8 @@ const tripInfoContainer = document.querySelector(`.trip-main`);
 const tripPresenter = new TripPresenter(tripPointsContainer, pointsModel, offersModel, destinationsModel, filterModel, tripInfoContainer);
 tripPresenter.init();
 
-let statisticsComponent = null;
+let statisticsComponent = new StatisticsView(pointsModel.getPoints());
+render(tripPointsContainer, statisticsComponent, RenderPosition.AFTEREND);
 
 const tabs = menuTabsComponent.getElement().querySelectorAll(`.trip-tabs__btn`);
 const createPointButton = document.querySelector(`.trip-main__event-add-btn`);
@@ -47,8 +49,6 @@ createPointButton.addEventListener(`click`, (evt) => {
 
   if (statisticsComponent) {
     statisticsComponent.hide();
-    remove(statisticsComponent);
-    statisticsComponent = null;
     tripPresenter.showTrip();
     tabs.forEach((tab) => tab.classList.toggle(`trip-tabs__btn--active`));
     menuTabsComponent.changeCurrentTab(MenuItem.TABLE);
@@ -63,15 +63,11 @@ const handleMenuTabs = (menuItem) => {
   switch (menuItem) {
     case MenuItem.TABLE:
       statisticsComponent.hide();
-      remove(statisticsComponent);
-      statisticsComponent = null;
       tripPresenter.showTrip();
       tabs.forEach((tab) => tab.classList.toggle(`trip-tabs__btn--active`));
       break;
 
     case MenuItem.STATS:
-      statisticsComponent = new StatisticsView(pointsModel.getPoints());
-      render(tripPointsContainer, statisticsComponent, RenderPosition.AFTEREND);
       tripPresenter.hideTrip();
       statisticsComponent.show();
       tabs.forEach((tab) => tab.classList.toggle(`trip-tabs__btn--active`));
@@ -79,5 +75,15 @@ const handleMenuTabs = (menuItem) => {
       break;
   }
 };
+
+const handleModelEvent = () => {
+  remove(statisticsComponent);
+  statisticsComponent = null;
+
+  statisticsComponent = new StatisticsView(pointsModel.getPoints());
+  render(tripPointsContainer, statisticsComponent, RenderPosition.AFTEREND);
+};
+
+pointsModel.addObserver(handleModelEvent);
 
 menuTabsComponent.setMenuTabChangeHandler(handleMenuTabs);

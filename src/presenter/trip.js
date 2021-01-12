@@ -218,9 +218,7 @@ export default class Trip {
 
   showTrip() {
     this._tripContainer.classList.remove(`trip-events--hidden`);
-    this._currentSortingType = SortingTypes.DEFAULT;
-    this._clearTrip();
-    this._renderTrip();
+    this._handleSortingTypeChange(SortingTypes.DEFAULT);
   }
 
   hideTrip() {

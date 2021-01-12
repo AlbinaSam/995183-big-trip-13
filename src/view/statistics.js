@@ -242,18 +242,11 @@ export default class Statictics extends AbstractView {
     this._timeChart = null;
 
     this.setCharts();
+    this.hide();
   }
 
   getTemplate() {
     return createStatisticsTemplate();
-  }
-
-  show() {
-    this.getElement().classList.remove(`statistics--hidden`);
-  }
-
-  hide() {
-    this.getElement().classList.add(`statistics--hidden`);
   }
 
   setCharts() {
