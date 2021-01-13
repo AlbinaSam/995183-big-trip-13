@@ -25,4 +25,12 @@ export default class Abstarct {
   removeElement() {
     this._element = null;
   }
+
+  show() {
+    this.getElement().classList.remove(`block--hidden`);
+  }
+
+  hide() {
+    this.getElement().classList.add(`block--hidden`);
+  }
 }
