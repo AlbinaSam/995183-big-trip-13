@@ -1,5 +1,5 @@
 import NewPointView from "../view/new-point.js";
-import {generateId} from "../mock/point.js";
+import {generateId} from "../utils/common.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
 
@@ -14,7 +14,9 @@ export default class NewPointPresenter {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._handleCancelClick = this._handleCancelClick.bind(this);
     this._getPointOffers = this._getPointOffers.bind(this);
+    this._getTypes = this._getTypes.bind(this);
     this._getDestinationDetails = this._getDestinationDetails.bind(this);
+    this._getDestinationsList = this._getDestinationsList.bind(this);
   }
 
   init(typeOffersModel, destinationDetailsModel, createPointButton) {
@@ -27,7 +29,7 @@ export default class NewPointPresenter {
     }
 
     this._createPointButton = createPointButton;
-    this._newPointComponent = new NewPointView(this._getPointOffers, this._getDestinationDetails);
+    this._newPointComponent = new NewPointView(this._getPointOffers, this._getDestinationDetails, this._getDestinationsList, this._getTypes);
     this._newPointComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._newPointComponent.setCancelClickHanler(this._handleCancelClick);
 
@@ -35,12 +37,20 @@ export default class NewPointPresenter {
     document.addEventListener(`keydown`, this._escKeyDownHandler);
   }
 
+  _getTypes() {
+    return this._typeOffersModel.getTypes();
+  }
+
   _getPointOffers(point) {
     return this._typeOffersModel.getOffers(point.type);
   }
 
-  _getDestinationDetails(point) {
-    return this._destinationDetailsModel.getDestinationDetails(point.destination);
+  _getDestinationsList() {
+    return this._destinationDetailsModel.getDestinationsList();
+  }
+
+  _getDestinationDetails(destination) {
+    return this._destinationDetailsModel.getDestinationDetails(destination);
   }
 
   destroy() {

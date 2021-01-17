@@ -8,7 +8,12 @@ export default class Offers {
   }
 
   getOffers(type) {
-    return this._pointsTypeOffers[type];
+    const foundType = this._pointsTypeOffers.find((item) => item.type === type.toLowerCase());
+    return foundType.offers;
+  }
+
+  getTypes() {
+    return this._pointsTypeOffers.map((item) => item.type);
   }
 }
 
