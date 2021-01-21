@@ -31,8 +31,21 @@ export default class MenuTabs extends AbstractView {
     this._callback.menuTabChange(evt.target.textContent);
   }
 
-  changeCurrentTab(newTab) {
+  _restoreHandler() {
+    this.setMenuTabChangeHandler(this._callback.menuTabChange);
+  }
+
+  updateElement(newTab) {
     this._currentMenuTab = newTab;
+    const prevElement = this.getElement();
+    const parent = prevElement.parentElement;
+
+    this.removeElement();
+
+    const newElement = this.getElement();
+    parent.replaceChild(newElement, prevElement);
+
+    this._restoreHandler();
   }
 
   setMenuTabChangeHandler(callback) {

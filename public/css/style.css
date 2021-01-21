@@ -981,3 +981,6 @@ main {
 
 .block--hidden {
   display: none; }
+
+.noafter::after {
+  display: none}

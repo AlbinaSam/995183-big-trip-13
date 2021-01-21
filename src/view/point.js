@@ -2,16 +2,15 @@ import AbstractView from "./abstract.js";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
-import {OffersDetails} from "../const.js";
 
 const createPointOffersTemplate = function (offers) {
   return `${offers !== undefined || offers.length !== 0 ?
     `<ul class="event__selected-offers">
     ${offers.map(function (offer) {
     return `<li class="event__offer">
-        <span class="event__offer-title">${OffersDetails[offer].title}</span>
+        <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
-        <span class="event__offer-price">${OffersDetails[offer].price}</span>
+        <span class="event__offer-price">${offer.price}</span>
       </li>`;
   }).join(``)}
   </ul>` : `` }`;
@@ -19,7 +18,6 @@ const createPointOffersTemplate = function (offers) {
 
 
 const getDuration = (startDate, endDate) => {
-
   const datesDiff = dayjs.duration(endDate.diff(startDate));
 
   const days = datesDiff.days();
@@ -50,7 +48,6 @@ const getDuration = (startDate, endDate) => {
 };
 
 const createPointTemplate = (eventItem) => {
-
   const {type, destination, offers, price, isFavorite, startDate, endDate} = eventItem;
   const formattedStartDate = dayjs(startDate).format(`DD/MM/YY HH:mm`);
   const formattedEndDate = dayjs(endDate).format(`DD/MM/YY HH:mm`);
@@ -74,7 +71,7 @@ const createPointTemplate = (eventItem) => {
     <div class="event__type">
       <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
     </div>
-    <h3 class="event__title">${type} ${destination}</h3>
+    <h3 class="event__title">${type} ${destination.name}</h3>
     <div class="event__schedule">
       <p class="event__time">
         <time class="event__start-time" datetime="${formattedStartDateTimeAttr}">${formattedStartDate}</time>

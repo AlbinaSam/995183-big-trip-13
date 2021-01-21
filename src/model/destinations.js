@@ -7,7 +7,13 @@ export default class Destination {
     this._destinationDetails = destinationDetails;
   }
 
+  getDestinationsList() {
+    return this._destinationDetails.map((destination) => {
+      return destination.name;
+    });
+  }
+
   getDestinationDetails(destination) {
-    return this._destinationDetails[destination];
+    return this._destinationDetails.find((item) => item.name === destination);
   }
 }

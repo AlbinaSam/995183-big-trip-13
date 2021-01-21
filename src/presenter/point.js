@@ -26,10 +26,14 @@ export default class Point {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
     this._getPointOffers = this._getPointOffers.bind(this);
+    this._getTypes = this._getTypes.bind(this);
     this._getDestinationDetails = this._getDestinationDetails.bind(this);
+    this._getDestinationsList = this._getDestinationsList.bind(this);
+    this._getOffersDictionary = this._getOffersDictionary.bind(this);
   }
 
   init(point, typeOffersModel, destinationDetailsModel) {
+
     this._point = point;
     const prevPointComponent = this._pointComponent;
     const prevEditPointComponent = this._editPointComponent;
@@ -38,7 +42,7 @@ export default class Point {
     this._destinationDetailsModel = destinationDetailsModel;
 
     this._pointComponent = new PointView(this._point);
-    this._editPointComponent = new EditPointView(this._point, this._getPointOffers, this._getDestinationDetails);
+    this._editPointComponent = new EditPointView(this._point, this._getPointOffers, this._getDestinationDetails, this._getDestinationsList, this._getTypes, this._getOffersDictionary);
     this._pointComponent.setPointClickHandler(this._handlePointClick);
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._editPointComponent.setFormSubmitHandler(this._handleFormSubmit);
@@ -62,12 +66,24 @@ export default class Point {
     remove(prevEditPointComponent);
   }
 
+  _getTypes() {
+    return this._typeOffersModel.getTypes();
+  }
+
   _getPointOffers(point) {
     return this._typeOffersModel.getOffers(point.type);
   }
 
-  _getDestinationDetails(point) {
-    return this._destinationDetailsModel.getDestinationDetails(point.destination);
+  _getOffersDictionary() {
+    return this._typeOffersModel.getOffersDictionary();
+  }
+
+  _getDestinationsList() {
+    return this._destinationDetailsModel.getDestinationsList();
+  }
+
+  _getDestinationDetails(destination) {
+    return this._destinationDetailsModel.getDestinationDetails(destination);
   }
 
   destroy() {
@@ -115,7 +131,6 @@ export default class Point {
   }
 
   _handleFormSubmit(update) {
-
     const isMinorUpdate = !isDatesEqual(this._point.startDate, update.startDate) ||
     !isDatesEqual(this._point.endDate, update.endDate);
 

@@ -1,8 +1,23 @@
 import SmartView from "./smart.js";
 import dayjs from "dayjs";
-import {Types, BLANK_POINT, destinationList} from "../const.js";
 import flatpickr from "flatpickr";
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
+import {collectOffersTitles} from "../utils/offers.js";
+
+const BLANK_POINT = {
+  type: `taxi`,
+  destination: {
+    name: ``,
+    description: ``,
+    pictures: []
+  },
+  offers: [],
+  price: 0,
+  isFavorite: false,
+  startDate: dayjs(),
+  endDate: dayjs()
+};
+
 
 const createDestinationList = (destinations) => {
   return `${Object.values(destinations).map((destinationOption) =>
@@ -10,27 +25,32 @@ const createDestinationList = (destinations) => {
   ).join(``)}`;
 };
 
-const createEventTypeItem = (type) => {
-  return `${Object.values(Types).map((typeItem) =>
+const createEventTypeItems = (types, type) => {
+  const formatType = (typeToFormat) => typeToFormat.replace(typeToFormat[0], typeToFormat[0].toUpperCase());
+  return Object.values(types).map((typeItem) =>
     `<div class="event__type-item">
-  <input id="event-type-${typeItem.toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${typeItem.toLowerCase()}" ${type === `${typeItem}` ? `checked` : ``}>
-  <label class="event__type-label  event__type-label--${typeItem.toLowerCase()}" for="event-type-${typeItem.toLowerCase()}-1">${typeItem}</label>
-</div>`).join(``)}`;
+  <input id="event-type-${typeItem}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${typeItem}" ${type === `${typeItem}` ? `checked` : ``}>
+  <label class="event__type-label  event__type-label--${typeItem}" for="event-type-${typeItem}-1">${formatType(typeItem)}</label>
+</div>`).join(``);
 };
 
-const createNewPointOffersTemplate = (typeOffers, offers) => {
+const createNewPointOffersTemplate = (typeOffers, offers, offersDictionary) => {
 
-  return `${Object.keys(typeOffers).length !== 0 ?
+  const pointOffersTitles = collectOffersTitles(offers);
+
+  return `${Object.keys(offersDictionary).length !== 0 ?
     `<section class="event__section  event__section--offers">
       <h3 class="event__section-title  event__section-title--offers">Offers</h3>
       <div class="event__available-offers">
-      ${Object.keys(typeOffers).map(function (typeOffer) {
+      ${Object.keys(offersDictionary).map(function (typeOffer) {
+
     return `<div class="event__offer-selector">
-    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${typeOffer}-1" type="checkbox" name="event-offer-${typeOffer}" data-offer-name="${typeOffer}" ${offers.includes(typeOffer) ? `checked` : ``}>
+    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${typeOffer}-1" type="checkbox" name="event-offer-${typeOffer}" data-offer-name="${typeOffer}" ${pointOffersTitles.includes(offersDictionary[typeOffer].title) ? `checked` : ``}
+     ${offers.includes(typeOffer) ? `checked` : ``}>
     <label class="event__offer-label" for="event-offer-${typeOffer}-1">
-      <span class="event__offer-title">${typeOffers[typeOffer].title}</span>
+      <span class="event__offer-title">${offersDictionary[typeOffer].title}</span>
       &plus;&euro;&nbsp;
-      <span class="event__offer-price">${typeOffers[typeOffer].price}</span>
+      <span class="event__offer-price">${offersDictionary[typeOffer].price}</span>
     </label>
   </div>`;
   }).join(``)}
@@ -43,7 +63,7 @@ const createEditPointPhotosTemplate = (photos) => {
     `<div class="event__photos-container">
       <div class="event__photos-tape">
       ${photos.map(function (photo) {
-    return `<img class="event__photo" src=${photo} alt="Event photo">`;
+    return `<img class="event__photo" src=${photo.src} alt="${photo.description}">`;
   }).join(``)}
     </div>
   </div>` : ``}`;
@@ -60,23 +80,24 @@ const createDestinationTemplate = (description, photos) => {
 </section>` : ``}`;
 };
 
-const createNewPointTemplate = (eventItem, typeOffers, destinationDetails) => {
+const createNewPointTemplate = (eventItem, typeOffers, destinationDetails, destinationsList, types, offersDictionary) => {
   const {type, destination, offers, price, startDate, endDate} = eventItem;
+
   let description = ``;
   let photos = [];
 
   if (destinationDetails) {
     description = destinationDetails.description;
-    photos = destinationDetails.photos;
+    photos = destinationDetails.pictures;
   }
 
   const lowerType = type.toLowerCase();
   const formattedStartDate = startDate ? dayjs(startDate).format(`DD/MM/YY HH:mm`) : ``;
   const formattedEndDate = endDate ? dayjs(endDate).format(`DD/MM/YY HH:mm`) : ``;
-  const offersTemplate = createNewPointOffersTemplate(typeOffers, offers);
+  const offersTemplate = createNewPointOffersTemplate(typeOffers, offers, offersDictionary[type]);
   const destinationTemplate = createDestinationTemplate(description, photos);
-  const eventTypeItem = createEventTypeItem(type);
-  const destinationOptions = createDestinationList(destinationList);
+  const eventTypeItems = createEventTypeItems(types, type);
+  const destinationOptions = createDestinationList(destinationsList);
 
   return `<li class="trip-events__item">
   <form class="event event--edit" action="#" method="post">
@@ -91,7 +112,7 @@ const createNewPointTemplate = (eventItem, typeOffers, destinationDetails) => {
         <div class="event__type-list">
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Event type</legend>
-            ${eventTypeItem}
+            ${eventTypeItems}
           </fieldset>
         </div>
       </div>
@@ -100,7 +121,7 @@ const createNewPointTemplate = (eventItem, typeOffers, destinationDetails) => {
         <label class="event__label  event__type-output" for="event-destination-1">
           ${type}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1" autocomplete="off" required>
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1" autocomplete="off" required>
         <datalist id="destination-list-1">
           ${destinationOptions}
         </datalist>
@@ -134,12 +155,16 @@ const createNewPointTemplate = (eventItem, typeOffers, destinationDetails) => {
 };
 
 export default class NewPoint extends SmartView {
-  constructor(getPointOffers, getDestinationDetails) {
+  constructor(getPointOffers, getDestinationDetails, getDestinationsList, getTypes, getOffersDictionary) {
     super();
-    this._point = BLANK_POINT;
     this._getPointOffers = getPointOffers;
     this._getDestinationDetails = getDestinationDetails;
+    this._getDestinationsList = getDestinationsList;
+    this._getTypes = getTypes;
+    this._getOffersDictionary = getOffersDictionary;
 
+    this._offersDictionary = this._getOffersDictionary();
+    this._point = BLANK_POINT;
 
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
@@ -156,7 +181,7 @@ export default class NewPoint extends SmartView {
   }
 
   getTemplate() {
-    return createNewPointTemplate(this._point, this._getPointOffers(this._point), this._getDestinationDetails(this._point));
+    return createNewPointTemplate(this._point, this._getPointOffers(this._point), this._getDestinationDetails(this._point.destination.name), this._getDestinationsList(), this._getTypes(), this._offersDictionary);
   }
 
   _formSubmitHandler(evt) {
@@ -188,7 +213,7 @@ export default class NewPoint extends SmartView {
 
     evt.preventDefault();
     const newEventType = evt.target.textContent;
-    this.updatePoint({type: newEventType, offers: []});
+    this.updatePoint({type: newEventType.toLowerCase(), offers: []});
   }
 
   _destinationChangeHandler(evt) {
@@ -197,10 +222,14 @@ export default class NewPoint extends SmartView {
     const newDestination = evt.target.value;
 
     if (newDestination) {
-      const isExistedDestination = (Object.values(destinationList)).includes(newDestination);
+      const isExistedDestination = this._getDestinationsList().includes(newDestination);
 
       if (isExistedDestination) {
-        this.updatePoint({destination: newDestination});
+        this.updatePoint({destination: {
+          name: newDestination,
+          description: this._getDestinationDetails(newDestination).description,
+          pictures: this._getDestinationDetails(newDestination).pictures
+        }});
       } else {
         evt.target.value = ``;
         this.updatePoint({destination: ``});
@@ -213,9 +242,15 @@ export default class NewPoint extends SmartView {
       return;
     }
 
+    const typeOffersDictionary = this._offersDictionary[this._point.type];
     let checkedOffers = this.getElement().querySelectorAll(`input.event__offer-checkbox:checked`);
     checkedOffers = Array.from(checkedOffers).map((checkedOffer) => checkedOffer.dataset.offerName);
-    this.updatePoint({offers: checkedOffers}, true);
+    this.updatePoint({offers: checkedOffers.map((offer) => {
+      return {
+        title: typeOffersDictionary[offer].title,
+        price: typeOffersDictionary[offer].price
+      };
+    })}, true);
   }
 
   _priceChangeHandler(evt) {
@@ -247,7 +282,6 @@ export default class NewPoint extends SmartView {
     this._startDatepicker = flatpickr(this.getElement().querySelector(`#event-start-time-1`), {
       enableTime: true,
       dateFormat: `d/m/y H:i`,
-      minDate: `today`,
       onChange: this._startDateChangeHandler
     });
 
@@ -263,7 +297,6 @@ export default class NewPoint extends SmartView {
       minDate: this.getElement().querySelector(`#event-start-time-1`).value,
       onChange: this._endDateChangeHandler
     });
-
   }
 
   _startDateChangeHandler(userdate) {
