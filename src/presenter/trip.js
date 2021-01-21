@@ -22,10 +22,20 @@ export default class Trip {
     this._api = api;
     this._pointsModel = pointsModel;
     this._offersModel = offersModel;
-    this._api.getOffers().then((offers) => this._offersModel.setTypeOffers(offers));
+    this._api.getOffers()
+    .then((offers) => {
+      this._offersModel.setTypeOffers(offers);
+    })
+    .catch(() => {
+      this._offersModel.setTypeOffers([]);
+    });
 
     this._destinationsModel = destinationsModel;
-    this._api.getDestinations().then((destinations) => this._destinationsModel.setDestinationDetails(destinations));
+    this._api.getDestinations()
+    .then((destinations) => this._destinationsModel.setDestinationDetails(destinations))
+    .catch(() => {
+      this._destinationsModel.setDestinationDetails([]);
+    });
 
     this._filterModel = filterModel;
 
@@ -65,7 +75,6 @@ export default class Trip {
   _getPoints() {
     const filterType = this._filterModel.getFilter();
     const points = this._pointsModel.getPoints();
-
     const filteredPoints = filter[filterType](points);
 
     switch (this._currentSortingType) {

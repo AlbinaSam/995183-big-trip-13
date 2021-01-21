@@ -2,10 +2,10 @@ import SmartView from "./smart.js";
 import dayjs from "dayjs";
 import flatpickr from "flatpickr";
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
-import {createTypeOffersDictionary, collectOffersTitles} from "../utils/offers.js";
+import {collectOffersTitles} from "../utils/offers.js";
 
 const BLANK_POINT = {
-  type: ``,
+  type: `taxi`,
   destination: {
     name: ``,
     description: ``,
@@ -34,24 +34,23 @@ const createEventTypeItems = (types, type) => {
 </div>`).join(``);
 };
 
-const createNewPointOffersTemplate = (typeOffers, offers) => {
+const createNewPointOffersTemplate = (typeOffers, offers, offersDictionary) => {
 
   const pointOffersTitles = collectOffersTitles(offers);
-  const typeOffersDictionary = createTypeOffersDictionary(typeOffers);
 
-  return `${Object.keys(typeOffersDictionary).length !== 0 ?
+  return `${Object.keys(offersDictionary).length !== 0 ?
     `<section class="event__section  event__section--offers">
       <h3 class="event__section-title  event__section-title--offers">Offers</h3>
       <div class="event__available-offers">
-      ${Object.keys(typeOffersDictionary).map(function (typeOffer) {
+      ${Object.keys(offersDictionary).map(function (typeOffer) {
 
     return `<div class="event__offer-selector">
-    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${typeOffer}-1" type="checkbox" name="event-offer-${typeOffer}" data-offer-name="${typeOffer}" ${pointOffersTitles.includes(typeOffersDictionary[typeOffer].title) ? `checked` : ``}
+    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${typeOffer}-1" type="checkbox" name="event-offer-${typeOffer}" data-offer-name="${typeOffer}" ${pointOffersTitles.includes(offersDictionary[typeOffer].title) ? `checked` : ``}
      ${offers.includes(typeOffer) ? `checked` : ``}>
     <label class="event__offer-label" for="event-offer-${typeOffer}-1">
-      <span class="event__offer-title">${typeOffersDictionary[typeOffer].title}</span>
+      <span class="event__offer-title">${offersDictionary[typeOffer].title}</span>
       &plus;&euro;&nbsp;
-      <span class="event__offer-price">${typeOffersDictionary[typeOffer].price}</span>
+      <span class="event__offer-price">${offersDictionary[typeOffer].price}</span>
     </label>
   </div>`;
   }).join(``)}
@@ -81,8 +80,7 @@ const createDestinationTemplate = (description, photos) => {
 </section>` : ``}`;
 };
 
-const createNewPointTemplate = (eventItem, typeOffers, destinationDetails, destinationsList, types) => {
-
+const createNewPointTemplate = (eventItem, typeOffers, destinationDetails, destinationsList, types, offersDictionary) => {
   const {type, destination, offers, price, startDate, endDate} = eventItem;
 
   let description = ``;
@@ -96,7 +94,7 @@ const createNewPointTemplate = (eventItem, typeOffers, destinationDetails, desti
   const lowerType = type.toLowerCase();
   const formattedStartDate = startDate ? dayjs(startDate).format(`DD/MM/YY HH:mm`) : ``;
   const formattedEndDate = endDate ? dayjs(endDate).format(`DD/MM/YY HH:mm`) : ``;
-  const offersTemplate = createNewPointOffersTemplate(typeOffers, offers);
+  const offersTemplate = createNewPointOffersTemplate(typeOffers, offers, offersDictionary[type]);
   const destinationTemplate = createDestinationTemplate(description, photos);
   const eventTypeItems = createEventTypeItems(types, type);
   const destinationOptions = createDestinationList(destinationsList);
@@ -157,13 +155,16 @@ const createNewPointTemplate = (eventItem, typeOffers, destinationDetails, desti
 };
 
 export default class NewPoint extends SmartView {
-  constructor(getPointOffers, getDestinationDetails, getDestinationsList, getTypes) {
+  constructor(getPointOffers, getDestinationDetails, getDestinationsList, getTypes, getOffersDictionary) {
     super();
     this._getPointOffers = getPointOffers;
     this._getDestinationDetails = getDestinationDetails;
     this._getDestinationsList = getDestinationsList;
     this._getTypes = getTypes;
-    this._point = Object.assign({}, BLANK_POINT, {type: this._getTypes()[0]});
+    this._getOffersDictionary = getOffersDictionary;
+
+    this._offersDictionary = this._getOffersDictionary();
+    this._point = BLANK_POINT;
 
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
@@ -180,7 +181,7 @@ export default class NewPoint extends SmartView {
   }
 
   getTemplate() {
-    return createNewPointTemplate(this._point, this._getPointOffers(this._point), this._getDestinationDetails(this._point.destination.name), this._getDestinationsList(), this._getTypes());
+    return createNewPointTemplate(this._point, this._getPointOffers(this._point), this._getDestinationDetails(this._point.destination.name), this._getDestinationsList(), this._getTypes(), this._offersDictionary);
   }
 
   _formSubmitHandler(evt) {
@@ -212,7 +213,7 @@ export default class NewPoint extends SmartView {
 
     evt.preventDefault();
     const newEventType = evt.target.textContent;
-    this.updatePoint({type: newEventType, offers: []});
+    this.updatePoint({type: newEventType.toLowerCase(), offers: []});
   }
 
   _destinationChangeHandler(evt) {
@@ -226,8 +227,8 @@ export default class NewPoint extends SmartView {
       if (isExistedDestination) {
         this.updatePoint({destination: {
           name: newDestination,
-          description: this._getDestinationDetails(this._point.destination.description),
-          pictures: this._getDestinationDetails(this._point.destination.pictures)
+          description: this._getDestinationDetails(newDestination).description,
+          pictures: this._getDestinationDetails(newDestination).pictures
         }});
       } else {
         evt.target.value = ``;
@@ -241,7 +242,7 @@ export default class NewPoint extends SmartView {
       return;
     }
 
-    const typeOffersDictionary = createTypeOffersDictionary(this._getPointOffers(this._point));
+    const typeOffersDictionary = this._offersDictionary[this._point.type];
     let checkedOffers = this.getElement().querySelectorAll(`input.event__offer-checkbox:checked`);
     checkedOffers = Array.from(checkedOffers).map((checkedOffer) => checkedOffer.dataset.offerName);
     this.updatePoint({offers: checkedOffers.map((offer) => {

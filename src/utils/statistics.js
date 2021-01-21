@@ -24,7 +24,7 @@ const getDuration = (point) => {
 export const countTypeDurations = (type, points) => {
   return dayjs.duration(
       points.filter((point) => point.type === type)
-      .reduce(function (sum, point) {
+      .reduce((sum, point) => {
         return sum + getDuration(point);
       }, 0)).days();
 };

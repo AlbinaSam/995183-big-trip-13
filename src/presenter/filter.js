@@ -23,10 +23,12 @@ export default class Filter {
 
     this._filterComponent = new FilterView(FilterType, this._currentFilter);
 
+
     this._filterComponent.setFilterTypeChangeHandler(this._handleFilterTypeChange);
 
     if (prevFilterComponent === null) {
       render(this._filterContainer, this._filterComponent, RenderPosition.AFTEREND);
+
       return;
     }
 

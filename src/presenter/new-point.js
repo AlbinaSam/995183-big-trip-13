@@ -17,6 +17,7 @@ export default class NewPointPresenter {
     this._getTypes = this._getTypes.bind(this);
     this._getDestinationDetails = this._getDestinationDetails.bind(this);
     this._getDestinationsList = this._getDestinationsList.bind(this);
+    this._getOffersDictionary = this._getOffersDictionary.bind(this);
   }
 
   init(typeOffersModel, destinationDetailsModel, createPointButton) {
@@ -29,7 +30,7 @@ export default class NewPointPresenter {
     }
 
     this._createPointButton = createPointButton;
-    this._newPointComponent = new NewPointView(this._getPointOffers, this._getDestinationDetails, this._getDestinationsList, this._getTypes);
+    this._newPointComponent = new NewPointView(this._getPointOffers, this._getDestinationDetails, this._getDestinationsList, this._getTypes, this._getOffersDictionary);
     this._newPointComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._newPointComponent.setCancelClickHanler(this._handleCancelClick);
 
@@ -43,6 +44,10 @@ export default class NewPointPresenter {
 
   _getPointOffers(point) {
     return this._typeOffersModel.getOffers(point.type);
+  }
+
+  _getOffersDictionary() {
+    return this._typeOffersModel.getOffersDictionary();
   }
 
   _getDestinationsList() {

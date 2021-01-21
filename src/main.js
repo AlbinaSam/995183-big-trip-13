@@ -94,12 +94,11 @@ pointsModel.addObserver(handleModelEvent);
 api.getPoints()
 .then((points) => {
   pointsModel.setPoints(UpdateType.INIT, points);
-  render(tripControlsHeaders[0], menuTabsComponent, RenderPosition.AFTEREND);
-  menuTabsComponent.setMenuTabChangeHandler(handleMenuTabs);
-  createPointButton.removeAttribute(`disabled`);
 })
 .catch(() => {
   pointsModel.setPoints(UpdateType.INIT, []);
+})
+.finally(() => {
   render(tripControlsHeaders[0], menuTabsComponent, RenderPosition.AFTEREND);
   menuTabsComponent.setMenuTabChangeHandler(handleMenuTabs);
   createPointButton.removeAttribute(`disabled`);
