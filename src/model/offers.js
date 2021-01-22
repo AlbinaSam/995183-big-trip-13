@@ -3,7 +3,7 @@ import {createTypeOffersDictionary} from "../utils/offers.js";
 export default class Offers {
   constructor() {
     this._pointsTypeOffers = {};
-    this._pointsTypeOffersDictionary = [];
+    this._pointsTypeOffersDictionary = {};
   }
 
   setTypeOffers(pointTypesOffers) {
