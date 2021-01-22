@@ -1,5 +1,4 @@
 import NewPointView from "../view/new-point.js";
-import {generateId} from "../utils/common.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
 
@@ -69,9 +68,27 @@ export default class NewPointPresenter {
     this._createPointButton.removeAttribute(`disabled`);
   }
 
+  setSavingState() {
+    this._newPointComponent.updatePoint({
+      isDisabled: true,
+      isSaving: true
+    });
+  }
+
+  setAbortingState() {
+    const resetFormState = () => {
+      this._newPointComponent.updatePoint({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    this._newPointComponent.shake(resetFormState);
+  }
+
   _handleFormSubmit(point) {
-    this._changeData(UserAction.ADD_POINT, UpdateType.MINOR, Object.assign({id: generateId()}, point));
-    this.destroy();
+    this._changeData(UserAction.ADD_POINT, UpdateType.MINOR, point);
   }
 
   _handleCancelClick() {
