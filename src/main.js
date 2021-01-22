@@ -50,11 +50,9 @@ createPointButton.setAttribute(`disabled`, `disabled`);
 createPointButton.addEventListener(`click`, (evt) => {
   evt.preventDefault();
 
-  if (statisticsComponent) {
-    statisticsComponent.hide();
-    tripPresenter.showTrip();
-    menuTabsComponent.updateElement(MenuItem.TABLE);
-  }
+  statisticsComponent.hide();
+  tripPresenter.showTrip();
+  menuTabsComponent.updateElement(MenuItem.TABLE);
 
   tripPresenter.createNewPoint(createPointButton);
   createPointButton.setAttribute(`disabled`, `disabled`);

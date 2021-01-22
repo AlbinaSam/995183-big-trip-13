@@ -81,6 +81,7 @@ const createDestinationTemplate = (description, photos) => {
 };
 
 const createNewPointTemplate = (eventItem, typeOffers, destinationDetails, destinationsList, types, offersDictionary) => {
+
   const {type, destination, offers, price, startDate, endDate} = eventItem;
 
   let description = ``;

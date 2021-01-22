@@ -12,6 +12,7 @@ const createDestinationList = (destinations) => {
 
 const createEditPointOffersTemplate = (typeOffers, offers, offersDictionary) => {
   const pointOffersTitles = collectOffersTitles(offers);
+
   return `${Object.keys(offersDictionary).length !== 0 ?
     `<section class="event__section  event__section--offers">
       <h3 class="event__section-title  event__section-title--offers">Offers</h3>
@@ -64,10 +65,9 @@ const createEventTypeItems = (types, type) => {
 };
 
 const createEditPointTemplate = (eventItem, typeOffers, destinationDetails, destinationsList, types, offersDictionary) => {
+  const {type, destination, offers, price, startDate, endDate, isDisabled, isSaving, isDeleting} = eventItem;
 
-  const {type, destination, offers, price, startDate, endDate} = eventItem;
   const {description, pictures} = destinationDetails;
-  const lowerType = type.toLowerCase();
   const formattedStartDate = dayjs(startDate).format(`DD/MM/YY HH:mm`);
   const formattedEndDate = dayjs(endDate).format(`DD/MM/YY HH:mm`);
   const offersTemplate = createEditPointOffersTemplate(typeOffers, offers, offersDictionary[type]);
@@ -81,9 +81,9 @@ const createEditPointTemplate = (eventItem, typeOffers, destinationDetails, dest
       <div class="event__type-wrapper">
         <label class="event__type  event__type-btn" for="event-type-toggle-1">
           <span class="visually-hidden">Choose event type</span>
-          <img class="event__type-icon" width="17" height="17" src="img/icons/${lowerType}.png" alt="Event type icon">
+          <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
         </label>
-        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${isDisabled ? `disabled` : ``}>
 
         <div class="event__type-list">
           <fieldset class="event__type-group">
@@ -97,7 +97,7 @@ const createEditPointTemplate = (eventItem, typeOffers, destinationDetails, dest
         <label class="event__label  event__type-output" for="event-destination-1">
           ${type}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1" autocomplete="off">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1" autocomplete="off" ${isDisabled ? `disabled` : ``}>
         <datalist id="destination-list-1">
         ${destinationOptions}
         </datalist>
@@ -105,10 +105,10 @@ const createEditPointTemplate = (eventItem, typeOffers, destinationDetails, dest
 
       <div class="event__field-group  event__field-group--time">
         <label class="visually-hidden" for="event-start-time-1">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formattedStartDate}">
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formattedStartDate}" ${isDisabled ? `disabled` : ``}>
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formattedEndDate}">
+        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formattedEndDate}" ${isDisabled ? `disabled` : ``}>
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -116,11 +116,11 @@ const createEditPointTemplate = (eventItem, typeOffers, destinationDetails, dest
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
+        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}" ${isDisabled ? `disabled` : ``}>
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">Delete</button>
+      <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? `Saving...` : `Save`}</button>
+      <button class="event__reset-btn" type="reset">${isDeleting ? `Deleting...` : `Delete`}</button>
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
       </button>
@@ -138,7 +138,7 @@ export default class EditPoint extends SmartView {
     super();
     this._startDatepicker = null;
     this._endDatepicker = null;
-    this._point = sortedRoutePoint;
+    this._point = EditPoint.addStateProperties(sortedRoutePoint);
     this._getPointOffers = getPointOffers;
     this._getTypes = getTypes;
     this._getOffersDictionary = getOffersDictionary;
@@ -166,7 +166,7 @@ export default class EditPoint extends SmartView {
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(this._point);
+    this._callback.formSubmit(EditPoint.removeStateProperties(this._point));
   }
 
   setFormSubmitHandler(callback) {
@@ -197,10 +197,10 @@ export default class EditPoint extends SmartView {
 
   _destinationChangeHandler(evt) {
     evt.preventDefault();
-
     const newDestination = evt.target.value;
 
     const isExistedDestination = this._getDestinationsList().includes(newDestination);
+
     if (newDestination && isExistedDestination) {
       this.updatePoint({destination: {
         name: newDestination,
@@ -255,7 +255,7 @@ export default class EditPoint extends SmartView {
   }
 
   reset() {
-    this.updatePoint(this._originalPoint);
+    this.updatePoint(EditPoint.addStateProperties(this._originalPoint));
   }
 
   removeElement() {
@@ -305,11 +305,30 @@ export default class EditPoint extends SmartView {
 
   _pointDeleteClickHandler(evt) {
     evt.preventDefault();
-    this._callback.deleteClick(this._point);
+    this._callback.deleteClick(EditPoint.removeStateProperties(this._point));
   }
 
   setDeleteClickHandler(callback) {
     this._callback.deleteClick = callback;
     this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._pointDeleteClickHandler);
+  }
+
+  static addStateProperties(point) {
+    return Object.assign({}, point,
+        {
+          isDisabled: false,
+          isSaving: false,
+          isDeleting: false
+        });
+  }
+
+  static removeStateProperties(point) {
+    point = Object.assign({}, point);
+
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
+
+    return point;
   }
 }

@@ -39,3 +39,7 @@ export const countTripCost = (points) => {
     return sum + point.price;
   }, 0);
 };
+
+export const isPriceEqual = (priceA, PriceB) => {
+  return priceA === PriceB;
+};

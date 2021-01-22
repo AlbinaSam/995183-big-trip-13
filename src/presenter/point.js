@@ -3,10 +3,17 @@ import EditPointView from "../view/edit-point.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
 import {isDatesEqual} from "../utils/common.js";
+import {isPriceEqual} from "../utils/trip-info.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
   EDITING: `EDITING`
+};
+
+export const State = {
+  SAVING: `SAVING`,
+  DELETING: `DELETING`,
+  ABORTING: `ABORTING`
 };
 
 export default class Point {
@@ -33,7 +40,6 @@ export default class Point {
   }
 
   init(point, typeOffersModel, destinationDetailsModel) {
-
     this._point = point;
     const prevPointComponent = this._pointComponent;
     const prevEditPointComponent = this._editPointComponent;
@@ -59,7 +65,8 @@ export default class Point {
     }
 
     if (this._mode === Mode.EDITING) {
-      replace(this._editPointComponent, prevEditPointComponent);
+      replace(this._pointComponent, prevEditPointComponent);
+      this._mode = Mode.DEFAULT;
     }
 
     remove(prevPointComponent);
@@ -131,15 +138,12 @@ export default class Point {
   }
 
   _handleFormSubmit(update) {
-    const isMinorUpdate = !isDatesEqual(this._point.startDate, update.startDate) ||
-    !isDatesEqual(this._point.endDate, update.endDate);
+    const isMinorUpdate = !isDatesEqual(this._point.startDate, update.startDate) || !isPriceEqual(this._point.price, update.price);
 
     this._changeData(
         UserAction.UPDATE_POINT,
         isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
         update);
-
-    this._replaceFormToPoint();
   }
 
   _handleEditPointClick() {
@@ -152,5 +156,36 @@ export default class Point {
         UserAction.DELETE_POINT,
         UpdateType.MINOR,
         point);
+  }
+
+  setViewState(state) {
+
+    const resetFormState = () => {
+      this._editPointComponent.updatePoint({
+        isSaving: false,
+        isDeleting: false,
+        isDisabled: false
+      });
+    };
+
+    switch (state) {
+      case State.SAVING:
+        this._editPointComponent.updatePoint({
+          isSaving: true,
+          isDisabled: true
+        });
+        break;
+
+      case State.DELETING:
+        this._editPointComponent.updatePoint({
+          isDeleting: true,
+          isDisabled: true
+        });
+        break;
+
+      case State.ABORTING:
+        this._pointComponent.shake(resetFormState);
+        this._editPointComponent.shake(resetFormState);
+    }
   }
 }
