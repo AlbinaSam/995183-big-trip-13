@@ -165,6 +165,7 @@ export default class EditPoint extends SmartView {
   }
 
   _formSubmitHandler(evt) {
+
     evt.preventDefault();
     this._callback.formSubmit(EditPoint.removeStateProperties(this._point));
   }

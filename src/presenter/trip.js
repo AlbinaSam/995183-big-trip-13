@@ -72,7 +72,6 @@ export default class Trip {
   _getPoints() {
     const filterType = this._filterModel.getFilter();
     const points = this._pointsModel.getPoints();
-
     const filteredPoints = filter[filterType](points);
 
     switch (this._currentSortingType) {
@@ -127,6 +126,7 @@ export default class Trip {
   }
 
   _handleModelEvent(updateType, update) {
+
     switch (updateType) {
       case UpdateType.PATCH:
         this._pointPresenter[update.id].init(update, this._offersModel, this._destinationsModel);
@@ -238,7 +238,6 @@ export default class Trip {
     }
 
     this._renderPointListContainer();
-
     if (this._getPoints().length === 0) {
       this._renderNoPoint();
       return;

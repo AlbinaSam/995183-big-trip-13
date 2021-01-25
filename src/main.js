@@ -42,7 +42,7 @@ const filterModel = new FilterModel();
 const tripControls = document.querySelector(`.trip-controls`);
 const tripControlsHeaders = tripControls.querySelectorAll(`h2`);
 
-const filterPresenter = new FilterPresenter(tripControlsHeaders[1], filterModel);
+const filterPresenter = new FilterPresenter(tripControlsHeaders[1], filterModel, pointsModel);
 filterPresenter.init();
 
 const pageMainContainer = document.querySelector(`.page-main .page-body__container`);

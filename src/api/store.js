@@ -30,13 +30,12 @@ export default class Store {
             })
         )
     );
+
   }
 
   removePointItem(storeKey, pointKey) {
-    const store = this._getItems(storeKey);
-
+    const store = this.getItems(storeKey);
     delete store[pointKey];
-
     this._storage.setItem(
         this._storeKeys[storeKey],
         JSON.stringify(store)

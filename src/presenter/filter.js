@@ -4,14 +4,16 @@ import {render, RenderPosition, replace, remove} from "../utils/render.js";
 import {UpdateType} from "../const.js";
 
 export default class Filter {
-  constructor(filterContainer, filterModel) {
+  constructor(filterContainer, filterModel, pointsModel) {
     this._filterContainer = filterContainer;
     this._filterModel = filterModel;
+    this._pointsModel = pointsModel;
     this._currentFilter = null;
     this._filterComponent = null;
 
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleFilterTypeChange = this._handleFilterTypeChange.bind(this);
+    this._getPoints = this._getPoints.bind(this);
 
     this._filterModel.addObserver(this._handleModelEvent);
   }
@@ -21,7 +23,7 @@ export default class Filter {
 
     const prevFilterComponent = this._filterComponent;
 
-    this._filterComponent = new FilterView(FilterType, this._currentFilter);
+    this._filterComponent = new FilterView(FilterType, this._currentFilter, this._getPoints);
 
     this._filterComponent.setFilterTypeChangeHandler(this._handleFilterTypeChange);
 
@@ -32,6 +34,10 @@ export default class Filter {
 
     replace(this._filterComponent, prevFilterComponent);
     remove(prevFilterComponent);
+  }
+
+  _getPoints() {
+    return this._pointsModel.getPoints();
   }
 
   _handleFilterTypeChange(filterType) {

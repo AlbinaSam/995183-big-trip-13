@@ -144,9 +144,9 @@ export default class Point {
   }
 
   _handleFormSubmit(update) {
-
     if (!isOnline()) {
       toast(`You can't save event offline`);
+      this.setViewState(State.ABORTING);
       return;
     }
 
@@ -167,6 +167,7 @@ export default class Point {
 
     if (!isOnline()) {
       toast(`You can't delete event offline`);
+      this.setViewState(State.ABORTING);
       return;
     }
 

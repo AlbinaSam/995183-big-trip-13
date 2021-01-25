@@ -43,9 +43,8 @@ export default class Provider {
 
   getPoints() {
     if (this._isOnline()) {
-      this._api.getPoints()
+      return this._api.getPoints()
       .then((points) => {
-
         const pointsForStore = createStoreStructure(storeKey.POINTS_STORE_KEY, points.map(PointsModel.adaptToServer));
         this._store.setItems(storeKey.POINTS_STORE_KEY, pointsForStore);
         return points;
@@ -116,6 +115,7 @@ export default class Provider {
   }
 
   deletePoint(point) {
+
     if (this._isOnline()) {
       return this._api.deletePoint(point)
       .then(() => this._store.removePointItem(storeKey.POINTS_STORE_KEY, point.id));
