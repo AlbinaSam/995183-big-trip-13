@@ -30,4 +30,10 @@ export const MenuItem = {
   STATS: `Stats`
 };
 
+export const storeKey = {
+  POINTS_STORE_KEY: `POINTS_STORE_KEY`,
+  OFFERS_STORE_KEY: `OFFERS_STORE_KEY`,
+  DESTINATIONS_STORE_KEY: `DESTINATIONS_STORE_KEY`
+};
+
 export const BAR_HEIGHT = 55;

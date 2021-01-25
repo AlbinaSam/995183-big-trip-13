@@ -16,7 +16,6 @@ import {filter} from "../utils/filter.js";
 import {generateTripInfoMain} from "../utils/trip-info.js";
 import {countTripCost} from "../utils/trip-info.js";
 
-
 export default class Trip {
   constructor(tripPointsContainer, pointsModel, offersModel, destinationsModel, filterModel, tripInfoContainer, api) {
     this._api = api;
