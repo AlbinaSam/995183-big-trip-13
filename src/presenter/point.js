@@ -3,7 +3,7 @@ import EditPointView from "../view/edit-point.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
 import {isDatesEqual, isOnline} from "../utils/common.js";
-import {isPriceEqual} from "../utils/trip-info.js";
+import {isPriceEqual, isOffersSumEqual} from "../utils/trip-info.js";
 import {toast} from "../utils/toast/toast.js";
 
 const Mode = {
@@ -150,7 +150,7 @@ export default class Point {
       return;
     }
 
-    const isMinorUpdate = !isDatesEqual(this._point.startDate, update.startDate) || !isPriceEqual(this._point.price, update.price);
+    const isMinorUpdate = !isDatesEqual(this._point.startDate, update.startDate) || !isPriceEqual(this._point.price, update.price) || !isOffersSumEqual(this._point.offers, update.offers);
 
     this._changeData(
         UserAction.UPDATE_POINT,
