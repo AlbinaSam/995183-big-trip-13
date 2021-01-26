@@ -58,9 +58,8 @@ export default class Provider {
 
   getOffers() {
     if (this._isOnline()) {
-      this._api.getOffers()
+      return this._api.getOffers()
       .then((offers) => {
-
         const offersToStore = createStoreStructure(storeKey.OFFERS_STORE_KEY, offers);
         this._store.setItems(storeKey.OFFERS_STORE_KEY, offersToStore);
         return offers;
@@ -74,7 +73,7 @@ export default class Provider {
 
   getDestinations() {
     if (this._isOnline()) {
-      this._api.getDestinations()
+      return this._api.getDestinations()
       .then((destinations) => {
         const destinationsToStore = createStoreStructure(storeKey.DESTINATIONS_STORE_KEY, destinations);
         this._store.setItems(storeKey.DESTINATIONS_STORE_KEY, destinationsToStore);

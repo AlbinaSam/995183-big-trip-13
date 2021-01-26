@@ -43,7 +43,6 @@ const tripControls = document.querySelector(`.trip-controls`);
 const tripControlsHeaders = tripControls.querySelectorAll(`h2`);
 
 const filterPresenter = new FilterPresenter(tripControlsHeaders[1], filterModel, pointsModel);
-filterPresenter.init();
 
 const pageMainContainer = document.querySelector(`.page-main .page-body__container`);
 const tripContainerComponent = new TripContainerView();
@@ -103,15 +102,26 @@ const handleModelEvent = () => {
 
   statisticsComponent = new StatisticsView(pointsModel.getPoints());
   render(pageMainContainer, statisticsComponent, RenderPosition.BEFOREEND);
+
+  filterPresenter.init();
 };
 
 pointsModel.addObserver(handleModelEvent);
 
-apiWithProvider.getPoints()
-.then((points) => {
+
+Promise.all([
+  apiWithProvider.getOffers(),
+  apiWithProvider.getDestinations(),
+  apiWithProvider.getPoints()
+])
+.then(([offers, destinations, points]) => {
+  offersModel.setTypeOffers(offers);
+  destinationsModel.setDestinationDetails(destinations);
   pointsModel.setPoints(UpdateType.INIT, points);
 })
 .catch(() => {
+  offersModel.setTypeOffers([]);
+  destinationsModel.setDestinationDetails([]);
   pointsModel.setPoints(UpdateType.INIT, []);
 })
 .finally(() => {
@@ -119,6 +129,7 @@ apiWithProvider.getPoints()
   menuTabsComponent.setMenuTabChangeHandler(handleMenuTabs);
   createPointButton.removeAttribute(`disabled`);
 });
+
 
 window.addEventListener(`load`, () => {
   navigator.serviceWorker.register(`/sw.js`);
