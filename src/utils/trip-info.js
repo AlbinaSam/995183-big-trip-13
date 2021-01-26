@@ -3,9 +3,9 @@ import {sortByDate} from "./sorting.js";
 import {DESTINATIONS_COUNT} from "../const.js";
 
 const getRouteName = (sortedRoutePoints) => {
-  let destinations = [];
+  const destinations = [];
   sortedRoutePoints.forEach((element) => {
-    let destination = element.destination.name;
+    const destination = element.destination.name;
     destinations.push(destination);
   });
 
@@ -36,7 +36,7 @@ export const generateTripInfoMain = (points) => {
 
 export const countTripCost = (points) => {
   return points.reduce((sum, point) => {
-    let pointOffersSum = point.offers.reduce((offersSum, offer) => {
+    const pointOffersSum = point.offers.reduce((offersSum, offer) => {
       return offersSum + offer.price;
     }, 0);
     return sum + point.price + pointOffersSum;

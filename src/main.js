@@ -52,7 +52,7 @@ const tripInfoContainer = document.querySelector(`.trip-main`);
 const tripPresenter = new TripPresenter(tripContainerComponent, pointsModel, offersModel, destinationsModel, filterModel, tripInfoContainer, apiWithProvider);
 tripPresenter.init();
 
-let menuTabsComponent = new MenuTabsView(MenuItem.TABLE);
+const menuTabsComponent = new MenuTabsView(MenuItem.TABLE);
 
 let statisticsComponent = new StatisticsView(pointsModel.getPoints());
 render(pageMainContainer, statisticsComponent, RenderPosition.BEFOREEND);
