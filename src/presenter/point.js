@@ -2,8 +2,9 @@ import PointView from "../view/point.js";
 import EditPointView from "../view/edit-point.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
-import {isDatesEqual} from "../utils/common.js";
-import {isPriceEqual} from "../utils/trip-info.js";
+import {isDatesEqual, isOnline} from "../utils/common.js";
+import {isPriceEqual, isOffersSumEqual} from "../utils/trip-info.js";
+import {toast} from "../utils/toast/toast.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -32,7 +33,6 @@ export default class Point {
     this._handleEditPointClick = this._handleEditPointClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
-    this._getPointOffers = this._getPointOffers.bind(this);
     this._getTypes = this._getTypes.bind(this);
     this._getDestinationDetails = this._getDestinationDetails.bind(this);
     this._getDestinationsList = this._getDestinationsList.bind(this);
@@ -48,7 +48,7 @@ export default class Point {
     this._destinationDetailsModel = destinationDetailsModel;
 
     this._pointComponent = new PointView(this._point);
-    this._editPointComponent = new EditPointView(this._point, this._getPointOffers, this._getDestinationDetails, this._getDestinationsList, this._getTypes, this._getOffersDictionary);
+    this._editPointComponent = new EditPointView(this._point, this._getDestinationDetails, this._getDestinationsList, this._getTypes, this._getOffersDictionary);
     this._pointComponent.setPointClickHandler(this._handlePointClick);
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._editPointComponent.setFormSubmitHandler(this._handleFormSubmit);
@@ -75,10 +75,6 @@ export default class Point {
 
   _getTypes() {
     return this._typeOffersModel.getTypes();
-  }
-
-  _getPointOffers(point) {
-    return this._typeOffersModel.getOffers(point.type);
   }
 
   _getOffersDictionary() {
@@ -127,6 +123,11 @@ export default class Point {
   }
 
   _handlePointClick() {
+    if (!isOnline()) {
+      toast(`You can't edit event offline`);
+      return;
+    }
+
     this._replacePointToForm();
   }
 
@@ -138,7 +139,13 @@ export default class Point {
   }
 
   _handleFormSubmit(update) {
-    const isMinorUpdate = !isDatesEqual(this._point.startDate, update.startDate) || !isPriceEqual(this._point.price, update.price);
+    if (!isOnline()) {
+      toast(`You can't save event offline`);
+      this.setViewState(State.ABORTING);
+      return;
+    }
+
+    const isMinorUpdate = !isDatesEqual(this._point.startDate, update.startDate) || !isPriceEqual(this._point.price, update.price) || !isOffersSumEqual(this._point.offers, update.offers);
 
     this._changeData(
         UserAction.UPDATE_POINT,
@@ -152,6 +159,13 @@ export default class Point {
   }
 
   _handleDeleteClick(point) {
+
+    if (!isOnline()) {
+      toast(`You can't delete event offline`);
+      this.setViewState(State.ABORTING);
+      return;
+    }
+
     this._changeData(
         UserAction.DELETE_POINT,
         UpdateType.MINOR,

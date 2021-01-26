@@ -36,10 +36,25 @@ export const generateTripInfoMain = (points) => {
 
 export const countTripCost = (points) => {
   return points.reduce((sum, point) => {
-    return sum + point.price;
+    let pointOffersSum = point.offers.reduce((offersSum, offer) => {
+      return offersSum + offer.price;
+    }, 0);
+    return sum + point.price + pointOffersSum;
   }, 0);
 };
 
 export const isPriceEqual = (priceA, PriceB) => {
   return priceA === PriceB;
+};
+
+export const isOffersSumEqual = (offersA, offersB) => {
+  const sumA = offersA.length !== 0 ? offersA.reduce((sum, offer) => {
+    return sum + offer.price;
+  }, 0) : 0;
+
+  const sumB = offersB.length !== 0 ? offersB.reduce((sum, offer) => {
+    return sum + offer.price;
+  }, 0) : 0;
+
+  return sumA === sumB;
 };
