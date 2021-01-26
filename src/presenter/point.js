@@ -33,7 +33,6 @@ export default class Point {
     this._handleEditPointClick = this._handleEditPointClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
-    this._getPointOffers = this._getPointOffers.bind(this);
     this._getTypes = this._getTypes.bind(this);
     this._getDestinationDetails = this._getDestinationDetails.bind(this);
     this._getDestinationsList = this._getDestinationsList.bind(this);
@@ -49,7 +48,7 @@ export default class Point {
     this._destinationDetailsModel = destinationDetailsModel;
 
     this._pointComponent = new PointView(this._point);
-    this._editPointComponent = new EditPointView(this._point, this._getPointOffers, this._getDestinationDetails, this._getDestinationsList, this._getTypes, this._getOffersDictionary);
+    this._editPointComponent = new EditPointView(this._point, this._getDestinationDetails, this._getDestinationsList, this._getTypes, this._getOffersDictionary);
     this._pointComponent.setPointClickHandler(this._handlePointClick);
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._editPointComponent.setFormSubmitHandler(this._handleFormSubmit);
@@ -76,10 +75,6 @@ export default class Point {
 
   _getTypes() {
     return this._typeOffersModel.getTypes();
-  }
-
-  _getPointOffers(point) {
-    return this._typeOffersModel.getOffers(point.type);
   }
 
   _getOffersDictionary() {

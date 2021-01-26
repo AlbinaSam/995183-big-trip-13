@@ -10,7 +10,7 @@ const createDestinationList = (destinations) => {
   ).join(``)}`;
 };
 
-const createEditPointOffersTemplate = (typeOffers, offers, offersDictionary) => {
+const createEditPointOffersTemplate = (offers, offersDictionary) => {
   const pointOffersTitles = collectOffersTitles(offers);
   return `${Object.keys(offersDictionary).length !== 0 ?
     `<section class="event__section  event__section--offers">
@@ -63,13 +63,13 @@ const createEventTypeItems = (types, type) => {
 </div>`).join(``);
 };
 
-const createEditPointTemplate = (eventItem, typeOffers, destinationDetails, destinationsList, types, offersDictionary) => {
+const createEditPointTemplate = (eventItem, destinationDetails, destinationsList, types, offersDictionary) => {
   const {type, destination, offers, price, startDate, endDate, isDisabled, isSaving, isDeleting} = eventItem;
 
   const {description, pictures} = destinationDetails;
   const formattedStartDate = dayjs(startDate).format(`DD/MM/YY HH:mm`);
   const formattedEndDate = dayjs(endDate).format(`DD/MM/YY HH:mm`);
-  const offersTemplate = createEditPointOffersTemplate(typeOffers, offers, offersDictionary[type]);
+  const offersTemplate = createEditPointOffersTemplate(offers, offersDictionary[type]);
   const destinationTemplate = createDestinationTemplate(description, pictures);
   const eventTypeItems = createEventTypeItems(types, type);
   const destinationOptions = createDestinationList(destinationsList);
@@ -133,12 +133,11 @@ const createEditPointTemplate = (eventItem, typeOffers, destinationDetails, dest
 };
 
 export default class EditPoint extends SmartView {
-  constructor(sortedRoutePoint, getPointOffers, getDestinationDetails, getDestinationsList, getTypes, getOffersDictionary) {
+  constructor(sortedRoutePoint, getDestinationDetails, getDestinationsList, getTypes, getOffersDictionary) {
     super();
     this._startDatepicker = null;
     this._endDatepicker = null;
     this._point = EditPoint.addStateProperties(sortedRoutePoint);
-    this._getPointOffers = getPointOffers;
     this._getTypes = getTypes;
     this._getOffersDictionary = getOffersDictionary;
     this._getDestinationDetails = getDestinationDetails;
@@ -160,7 +159,7 @@ export default class EditPoint extends SmartView {
   }
 
   getTemplate() {
-    return createEditPointTemplate(this._point, this._getPointOffers(this._point), this._getDestinationDetails(this._point.destination.name), this._getDestinationsList(), this._getTypes(), this._offersDictionary);
+    return createEditPointTemplate(this._point, this._getDestinationDetails(this._point.destination.name), this._getDestinationsList(), this._getTypes(), this._offersDictionary);
   }
 
   _formSubmitHandler(evt) {

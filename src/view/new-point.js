@@ -34,7 +34,7 @@ const createEventTypeItems = (types, type) => {
 </div>`).join(``);
 };
 
-const createNewPointOffersTemplate = (typeOffers, offers, offersDictionary) => {
+const createNewPointOffersTemplate = (offers, offersDictionary) => {
 
   const pointOffersTitles = collectOffersTitles(offers);
 
@@ -80,7 +80,7 @@ const createDestinationTemplate = (description, photos) => {
 </section>` : ``}`;
 };
 
-const createNewPointTemplate = (eventItem, typeOffers, destinationDetails, destinationsList, types, offersDictionary) => {
+const createNewPointTemplate = (eventItem, destinationDetails, destinationsList, types, offersDictionary) => {
 
   const {type, destination, offers, price, startDate, endDate} = eventItem;
 
@@ -95,7 +95,7 @@ const createNewPointTemplate = (eventItem, typeOffers, destinationDetails, desti
   const lowerType = type.toLowerCase();
   const formattedStartDate = startDate ? dayjs(startDate).format(`DD/MM/YY HH:mm`) : ``;
   const formattedEndDate = endDate ? dayjs(endDate).format(`DD/MM/YY HH:mm`) : ``;
-  const offersTemplate = createNewPointOffersTemplate(typeOffers, offers, offersDictionary[type]);
+  const offersTemplate = createNewPointOffersTemplate(offers, offersDictionary[type]);
   const destinationTemplate = createDestinationTemplate(description, photos);
   const eventTypeItems = createEventTypeItems(types, type);
   const destinationOptions = createDestinationList(destinationsList);
@@ -156,9 +156,8 @@ const createNewPointTemplate = (eventItem, typeOffers, destinationDetails, desti
 };
 
 export default class NewPoint extends SmartView {
-  constructor(getPointOffers, getDestinationDetails, getDestinationsList, getTypes, getOffersDictionary) {
+  constructor(getDestinationDetails, getDestinationsList, getTypes, getOffersDictionary) {
     super();
-    this._getPointOffers = getPointOffers;
     this._getDestinationDetails = getDestinationDetails;
     this._getDestinationsList = getDestinationsList;
     this._getTypes = getTypes;
@@ -182,7 +181,7 @@ export default class NewPoint extends SmartView {
   }
 
   getTemplate() {
-    return createNewPointTemplate(this._point, this._getPointOffers(this._point), this._getDestinationDetails(this._point.destination.name), this._getDestinationsList(), this._getTypes(), this._offersDictionary);
+    return createNewPointTemplate(this._point, this._getDestinationDetails(this._point.destination.name), this._getDestinationsList(), this._getTypes(), this._offersDictionary);
   }
 
   _formSubmitHandler(evt) {

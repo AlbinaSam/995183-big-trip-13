@@ -11,16 +11,6 @@ export default class Offers {
     this._pointsTypeOffersDictionary = createTypeOffersDictionary(this._pointsTypeOffers);
   }
 
-
-  getOffers(type) {
-    const foundType = this._pointsTypeOffers.find((item) => item.type === type.toLowerCase());
-    if (foundType) {
-      return foundType.offers;
-    }
-
-    return [];
-  }
-
   getTypes() {
     return this._pointsTypeOffers.map((item) => item.type);
   }
